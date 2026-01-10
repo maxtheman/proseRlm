@@ -1,0 +1,78 @@
+User 7 | 2023-06-12 06:13:51 | Why do we dream?
+User 13 | 2023-02-15 18:29:02 | What country is the Outback in?
+User 5 | 2023-06-10 22:31:10 | What city is the Colosseum in?
+User 15 | 2023-02-02 04:40:28 | What country is the Outback in?
+User 12 | 2023-05-16 09:09:13 | Where is the Taj Mahal?
+User 19 | 2023-04-01 15:25:19 | What does UNESCO mean?
+User 16 | 2023-02-24 19:38:06 | What continent is Egypt in?
+User 16 | 2023-02-21 11:20:57 | What is the full form of WHO?
+User 2 | 2023-01-09 01:05:05 | What continent is Egypt in?
+User 18 | 2023-06-11 02:08:36 | How does photosynthesis work?
+User 20 | 2023-03-28 03:58:42 | Why is the sky blue?
+User 4 | 2023-02-09 07:50:21 | Who painted the Mona Lisa?
+User 8 | 2023-04-08 09:49:42 | What metal is liquid at room temperature?
+User 6 | 2023-03-16 02:54:18 | What does HTTP stand for?
+User 17 | 2023-01-17 12:18:33 | What is the national flower of Japan?
+User 13 | 2023-01-01 09:35:22 | What metal is liquid at room temperature?
+User 14 | 2023-05-06 00:42:32 | Where are the Pyramids of Giza?
+User 14 | 2023-04-03 11:11:46 | How do vaccines work?
+User 1 | 2023-01-27 19:51:22 | What is the tallest building in the world?
+User 19 | 2023-01-14 23:47:29 | What is the boiling point of water?
+User 4 | 2023-03-30 21:58:51 | What is the theory of relativity?
+User 17 | 2023-05-22 08:22:41 | Why do we dream?
+User 18 | 2023-03-02 10:08:20 | What is democracy?
+User 15 | 2023-05-05 02:31:11 | How does the internet work?
+User 12 | 2023-04-09 13:53:39 | Where is the Amazon River?
+User 8 | 2023-05-23 07:59:45 | What is the full form of WHO?
+User 19 | 2023-01-25 03:31:44 | What year did World War II end?
+User 13 | 2023-06-10 10:51:57 | Why do birds migrate?
+User 9 | 2023-03-10 02:24:35 | Who was the first person on the moon?
+User 8 | 2023-01-15 08:20:21 | What is FBI short for?
+User 13 | 2023-06-05 07:14:31 | What does ASAP stand for?
+User 7 | 2023-06-24 23:35:39 | What does RSVP mean?
+User 19 | 2023-03-04 17:13:13 | Where is the Taj Mahal?
+User 7 | 2023-04-04 05:55:19 | How many continents are there?
+User 12 | 2023-01-29 10:41:09 | What is FBI short for?
+User 16 | 2023-03-09 19:12:43 | What country is the Great Wall in?
+User 9 | 2023-05-26 11:27:25 | What is the hardest natural substance?
+User 15 | 2023-05-26 02:52:02 | What causes earthquakes?
+User 16 | 2023-06-16 13:35:44 | How many continents are there?
+User 10 | 2023-04-12 23:24:19 | What is the abbreviation for California?
+User 5 | 2023-02-19 02:31:56 | Who discovered America?
+User 11 | 2023-01-24 01:42:55 | Where is the Taj Mahal?
+User 11 | 2023-06-10 05:49:29 | Why do leaves change color in fall?
+User 10 | 2023-03-09 05:05:01 | How tall is Mount Everest?
+User 5 | 2023-04-28 19:31:24 | How does the internet work?
+User 20 | 2023-02-18 19:31:32 | What is the national flower of Japan?
+User 3 | 2023-04-25 21:27:16 | What year did World War II end?
+User 1 | 2023-03-12 08:54:58 | How does the internet work?
+User 12 | 2023-01-03 04:10:14 | Where is the Louvre Museum?
+User 13 | 2023-02-11 19:38:17 | What is the largest ocean?
+User 2 | 2023-03-01 18:23:57 | What causes earthquakes?
+User 4 | 2023-02-10 15:23:12 | What causes inflation?
+User 12 | 2023-05-18 09:42:53 | What does RSVP mean?
+User 16 | 2023-05-13 16:26:17 | How long is a marathon?
+User 11 | 2023-04-20 21:14:44 | What is PhD short for?
+User 3 | 2023-06-16 19:50:26 | Where is Silicon Valley?
+User 18 | 2023-01-09 12:01:49 | What planet is known as the Red Planet?
+User 6 | 2023-01-26 13:50:23 | What tree produces acorns?
+User 11 | 2023-02-26 05:02:11 | What is the speed of light?
+User 7 | 2023-02-23 09:43:13 | Who founded Microsoft?
+User 5 | 2023-04-07 02:52:08 | How do vaccines work?
+User 10 | 2023-05-24 19:37:24 | What instrument has 88 keys?
+User 4 | 2023-01-24 13:49:57 | Who wrote Romeo and Juliet?
+User 19 | 2023-02-03 20:47:27 | What is the smallest country in the world?
+
+In the above data, each line contains: User ID | Timestamp | Question
+
+The questions can be labelled as one of these categories (the data does not provide the labels, you need to figure out the label from the semantics of the question):
+- description and abstract concept
+- entity  
+- human being
+- numeric value
+- location
+- abbreviation
+
+List all pairs of user IDs (no duplicate pairs, list lower ID first) where both users have at least one instance with an entity or location.
+
+In your answer, list all pairs in the format (user id 1, user id 2), separated by newlines.

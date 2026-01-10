@@ -1,0 +1,46 @@
+# Runtime state
+tmp/
+
+# Large data files
+experiments/oolong-pairs/dataset_task1_*.json
+experiments/oolong-pairs/input_task1_*.txt
+experiments/oolong-pairs/dataset_*.json
+experiments/oolong-pairs/input_*.txt
+!experiments/oolong-pairs/dataset.json
+!experiments/oolong-pairs/input.txt
+
+# Reference repos (submodules or cloned)
+rlm/
+openprose/
+claude-code/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# PDF (large, can be downloaded)
+*.pdf

@@ -1,0 +1,159 @@
+# oolong-pairs-1M.prose - OOLONG-Pairs Benchmark at 1M tokens
+# ============================================================================
+#
+# This program solves a long-context pairwise reasoning task.
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# AGENT DEFINITIONS
+# ----------------------------------------------------------------------------
+
+agent initializer:
+  model: sonnet
+  prompt: """
+  You initialize state for a problem-solving loop.
+  
+  Create the state directory and initial state file:
+  
+    mkdir -p ./tmp/rlm_state
+    
+  Write state.json with the problem and phase="decompose".
+  The worker will figure out how to approach it.
+  """
+
+agent worker:
+  model: sonnet
+  prompt: """
+  You are a worker agent executing one iteration of a problem-solving loop.
+  You are running inside Claude Code and have access to all its tools.
+  
+  Each iteration, you:
+  1. Read the current state from the state file
+  2. Do ONE unit of work based on the current phase
+  3. Update the state file with your progress
+  4. The loop continues until you set done=true
+  
+  PHASES:
+  
+  "decompose" - Examine the problem and plan your approach
+    → Look at the input data to understand its structure and size
+    → Decide how to break it into manageable pieces
+    → Set up any data structures you need
+    → Set state.phase = "process"
+  
+  "process" - Handle work items
+    → Process items, using sub-agent calls when you need
+      semantic understanding that can't be done programmatically
+    → Track your progress
+    → When done processing, set state.phase = "synthesize"
+  
+  "synthesize" - Produce final answer
+    → Combine your results into the final answer
+    → Set state.done = true and state.answer = <your answer>
+  
+  
+  YOUR CAPABILITIES:
+  
+  1. BASH / PYTHON
+     Use the Bash tool to run commands and Python scripts.
+     Write scripts to files and execute them.
+  
+  2. FILE STORAGE
+     Use SQLite, CSV, JSON, etc. for intermediate data.
+     Don't try to hold large data in memory or state.json.
+  
+  3. SUB-AGENT CALLS FOR SEMANTIC REASONING
+     When you need LLM reasoning (e.g., classifying text semantically),
+     use the Task tool to spawn a sub-agent:
+     
+       Task({
+         subagent_type: "general-purpose",
+         prompt: "Classify these questions as NUM, LOC, HUM, ENTY, DESC, or ABBR: ..."
+       })
+     
+     The Task tool spawns another Claude agent that can reason about
+     the content you send it. This is how you get semantic classification
+     without writing code that calls APIs.
+     
+     IMPORTANT: Do NOT try to call the Anthropic API directly via Python.
+     You don't have API keys. Use the Task tool instead - it handles everything.
+     
+     Each sub-agent can handle substantial context, so batch efficiently
+     (e.g., send 100-200 questions per Task call, not one at a time).
+  
+  
+  IMPORTANT:
+  - Read state at START, write state at END of each iteration
+  - Set done=true when completely finished
+  - Put final answer in state.answer or a file path to the answer
+  """
+
+agent extractor:
+  model: haiku
+  prompt: """
+  Extract the final answer from the state file.
+  Return state.answer in a clean format.
+  """
+
+
+# ----------------------------------------------------------------------------
+# CONFIGURATION
+# ----------------------------------------------------------------------------
+
+const state_dir = "./tmp/rlm_state"
+const state_file = "./tmp/rlm_state/state.json"
+
+
+# ----------------------------------------------------------------------------
+# MAIN PROGRAM
+# ----------------------------------------------------------------------------
+
+# Step 1: Initialize
+session: initializer
+  prompt: """
+  Initialize state for this problem:
+  
+  PROBLEM:
+  The input file at ./experiments/oolong-pairs/input_task1_1M.txt contains
+  question data. Each line has format:
+    Date: <date> || User: <user_id> || Instance: <question>
+  
+  Each question can be classified as one of: description and abstract concept,
+  entity, human being, numeric value, location, abbreviation.
+  
+  The labels are NOT in the data - you must infer them from question semantics.
+  
+  TASK:
+  List all pairs of user IDs (no duplicate pairs, list lower ID first) where
+  BOTH users have at least one question classified as "numeric value" OR
+  "location".
+  
+  Output format: One pair per line as (id1, id2)
+  
+  Create {state_dir} and write initial state to {state_file}.
+  """
+
+
+# Step 2: Main loop
+loop until **state file shows done=true** (max: 100):
+  
+  session: worker
+    prompt: """
+    Execute one iteration.
+    
+    State file: {state_file}
+    Input file: ./experiments/oolong-pairs/input_task1_1M.txt
+    
+    Read state, do one unit of work, write updated state.
+    
+    Remember: For semantic classification of questions, use the Task tool
+    to spawn sub-agents. Do NOT try to call any APIs directly.
+    """
+
+
+# Step 3: Extract answer
+let answer = session: extractor
+  prompt: """
+  Read {state_file} and return the final answer.
+  """

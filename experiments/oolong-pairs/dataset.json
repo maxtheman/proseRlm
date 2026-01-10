@@ -1,0 +1,1319 @@
+{
+  "dataset": [
+    {
+      "user_id": 7,
+      "timestamp": "2023-06-12 06:13:51",
+      "question": "Why do we dream?"
+    },
+    {
+      "user_id": 13,
+      "timestamp": "2023-02-15 18:29:02",
+      "question": "What country is the Outback in?"
+    },
+    {
+      "user_id": 5,
+      "timestamp": "2023-06-10 22:31:10",
+      "question": "What city is the Colosseum in?"
+    },
+    {
+      "user_id": 15,
+      "timestamp": "2023-02-02 04:40:28",
+      "question": "What country is the Outback in?"
+    },
+    {
+      "user_id": 12,
+      "timestamp": "2023-05-16 09:09:13",
+      "question": "Where is the Taj Mahal?"
+    },
+    {
+      "user_id": 19,
+      "timestamp": "2023-04-01 15:25:19",
+      "question": "What does UNESCO mean?"
+    },
+    {
+      "user_id": 16,
+      "timestamp": "2023-02-24 19:38:06",
+      "question": "What continent is Egypt in?"
+    },
+    {
+      "user_id": 16,
+      "timestamp": "2023-02-21 11:20:57",
+      "question": "What is the full form of WHO?"
+    },
+    {
+      "user_id": 2,
+      "timestamp": "2023-01-09 01:05:05",
+      "question": "What continent is Egypt in?"
+    },
+    {
+      "user_id": 18,
+      "timestamp": "2023-06-11 02:08:36",
+      "question": "How does photosynthesis work?"
+    },
+    {
+      "user_id": 20,
+      "timestamp": "2023-03-28 03:58:42",
+      "question": "Why is the sky blue?"
+    },
+    {
+      "user_id": 4,
+      "timestamp": "2023-02-09 07:50:21",
+      "question": "Who painted the Mona Lisa?"
+    },
+    {
+      "user_id": 8,
+      "timestamp": "2023-04-08 09:49:42",
+      "question": "What metal is liquid at room temperature?"
+    },
+    {
+      "user_id": 6,
+      "timestamp": "2023-03-16 02:54:18",
+      "question": "What does HTTP stand for?"
+    },
+    {
+      "user_id": 17,
+      "timestamp": "2023-01-17 12:18:33",
+      "question": "What is the national flower of Japan?"
+    },
+    {
+      "user_id": 13,
+      "timestamp": "2023-01-01 09:35:22",
+      "question": "What metal is liquid at room temperature?"
+    },
+    {
+      "user_id": 14,
+      "timestamp": "2023-05-06 00:42:32",
+      "question": "Where are the Pyramids of Giza?"
+    },
+    {
+      "user_id": 14,
+      "timestamp": "2023-04-03 11:11:46",
+      "question": "How do vaccines work?"
+    },
+    {
+      "user_id": 1,
+      "timestamp": "2023-01-27 19:51:22",
+      "question": "What is the tallest building in the world?"
+    },
+    {
+      "user_id": 19,
+      "timestamp": "2023-01-14 23:47:29",
+      "question": "What is the boiling point of water?"
+    },
+    {
+      "user_id": 4,
+      "timestamp": "2023-03-30 21:58:51",
+      "question": "What is the theory of relativity?"
+    },
+    {
+      "user_id": 17,
+      "timestamp": "2023-05-22 08:22:41",
+      "question": "Why do we dream?"
+    },
+    {
+      "user_id": 18,
+      "timestamp": "2023-03-02 10:08:20",
+      "question": "What is democracy?"
+    },
+    {
+      "user_id": 15,
+      "timestamp": "2023-05-05 02:31:11",
+      "question": "How does the internet work?"
+    },
+    {
+      "user_id": 12,
+      "timestamp": "2023-04-09 13:53:39",
+      "question": "Where is the Amazon River?"
+    },
+    {
+      "user_id": 8,
+      "timestamp": "2023-05-23 07:59:45",
+      "question": "What is the full form of WHO?"
+    },
+    {
+      "user_id": 19,
+      "timestamp": "2023-01-25 03:31:44",
+      "question": "What year did World War II end?"
+    },
+    {
+      "user_id": 13,
+      "timestamp": "2023-06-10 10:51:57",
+      "question": "Why do birds migrate?"
+    },
+    {
+      "user_id": 9,
+      "timestamp": "2023-03-10 02:24:35",
+      "question": "Who was the first person on the moon?"
+    },
+    {
+      "user_id": 8,
+      "timestamp": "2023-01-15 08:20:21",
+      "question": "What is FBI short for?"
+    },
+    {
+      "user_id": 13,
+      "timestamp": "2023-06-05 07:14:31",
+      "question": "What does ASAP stand for?"
+    },
+    {
+      "user_id": 7,
+      "timestamp": "2023-06-24 23:35:39",
+      "question": "What does RSVP mean?"
+    },
+    {
+      "user_id": 19,
+      "timestamp": "2023-03-04 17:13:13",
+      "question": "Where is the Taj Mahal?"
+    },
+    {
+      "user_id": 7,
+      "timestamp": "2023-04-04 05:55:19",
+      "question": "How many continents are there?"
+    },
+    {
+      "user_id": 12,
+      "timestamp": "2023-01-29 10:41:09",
+      "question": "What is FBI short for?"
+    },
+    {
+      "user_id": 16,
+      "timestamp": "2023-03-09 19:12:43",
+      "question": "What country is the Great Wall in?"
+    },
+    {
+      "user_id": 9,
+      "timestamp": "2023-05-26 11:27:25",
+      "question": "What is the hardest natural substance?"
+    },
+    {
+      "user_id": 15,
+      "timestamp": "2023-05-26 02:52:02",
+      "question": "What causes earthquakes?"
+    },
+    {
+      "user_id": 16,
+      "timestamp": "2023-06-16 13:35:44",
+      "question": "How many continents are there?"
+    },
+    {
+      "user_id": 10,
+      "timestamp": "2023-04-12 23:24:19",
+      "question": "What is the abbreviation for California?"
+    },
+    {
+      "user_id": 5,
+      "timestamp": "2023-02-19 02:31:56",
+      "question": "Who discovered America?"
+    },
+    {
+      "user_id": 11,
+      "timestamp": "2023-01-24 01:42:55",
+      "question": "Where is the Taj Mahal?"
+    },
+    {
+      "user_id": 11,
+      "timestamp": "2023-06-10 05:49:29",
+      "question": "Why do leaves change color in fall?"
+    },
+    {
+      "user_id": 10,
+      "timestamp": "2023-03-09 05:05:01",
+      "question": "How tall is Mount Everest?"
+    },
+    {
+      "user_id": 5,
+      "timestamp": "2023-04-28 19:31:24",
+      "question": "How does the internet work?"
+    },
+    {
+      "user_id": 20,
+      "timestamp": "2023-02-18 19:31:32",
+      "question": "What is the national flower of Japan?"
+    },
+    {
+      "user_id": 3,
+      "timestamp": "2023-04-25 21:27:16",
+      "question": "What year did World War II end?"
+    },
+    {
+      "user_id": 1,
+      "timestamp": "2023-03-12 08:54:58",
+      "question": "How does the internet work?"
+    },
+    {
+      "user_id": 12,
+      "timestamp": "2023-01-03 04:10:14",
+      "question": "Where is the Louvre Museum?"
+    },
+    {
+      "user_id": 13,
+      "timestamp": "2023-02-11 19:38:17",
+      "question": "What is the largest ocean?"
+    },
+    {
+      "user_id": 2,
+      "timestamp": "2023-03-01 18:23:57",
+      "question": "What causes earthquakes?"
+    },
+    {
+      "user_id": 4,
+      "timestamp": "2023-02-10 15:23:12",
+      "question": "What causes inflation?"
+    },
+    {
+      "user_id": 12,
+      "timestamp": "2023-05-18 09:42:53",
+      "question": "What does RSVP mean?"
+    },
+    {
+      "user_id": 16,
+      "timestamp": "2023-05-13 16:26:17",
+      "question": "How long is a marathon?"
+    },
+    {
+      "user_id": 11,
+      "timestamp": "2023-04-20 21:14:44",
+      "question": "What is PhD short for?"
+    },
+    {
+      "user_id": 3,
+      "timestamp": "2023-06-16 19:50:26",
+      "question": "Where is Silicon Valley?"
+    },
+    {
+      "user_id": 18,
+      "timestamp": "2023-01-09 12:01:49",
+      "question": "What planet is known as the Red Planet?"
+    },
+    {
+      "user_id": 6,
+      "timestamp": "2023-01-26 13:50:23",
+      "question": "What tree produces acorns?"
+    },
+    {
+      "user_id": 11,
+      "timestamp": "2023-02-26 05:02:11",
+      "question": "What is the speed of light?"
+    },
+    {
+      "user_id": 7,
+      "timestamp": "2023-02-23 09:43:13",
+      "question": "Who founded Microsoft?"
+    },
+    {
+      "user_id": 5,
+      "timestamp": "2023-04-07 02:52:08",
+      "question": "How do vaccines work?"
+    },
+    {
+      "user_id": 10,
+      "timestamp": "2023-05-24 19:37:24",
+      "question": "What instrument has 88 keys?"
+    },
+    {
+      "user_id": 4,
+      "timestamp": "2023-01-24 13:49:57",
+      "question": "Who wrote Romeo and Juliet?"
+    },
+    {
+      "user_id": 19,
+      "timestamp": "2023-02-03 20:47:27",
+      "question": "What is the smallest country in the world?"
+    }
+  ],
+  "dataset_text": "User 7 | 2023-06-12 06:13:51 | Why do we dream?\nUser 13 | 2023-02-15 18:29:02 | What country is the Outback in?\nUser 5 | 2023-06-10 22:31:10 | What city is the Colosseum in?\nUser 15 | 2023-02-02 04:40:28 | What country is the Outback in?\nUser 12 | 2023-05-16 09:09:13 | Where is the Taj Mahal?\nUser 19 | 2023-04-01 15:25:19 | What does UNESCO mean?\nUser 16 | 2023-02-24 19:38:06 | What continent is Egypt in?\nUser 16 | 2023-02-21 11:20:57 | What is the full form of WHO?\nUser 2 | 2023-01-09 01:05:05 | What continent is Egypt in?\nUser 18 | 2023-06-11 02:08:36 | How does photosynthesis work?\nUser 20 | 2023-03-28 03:58:42 | Why is the sky blue?\nUser 4 | 2023-02-09 07:50:21 | Who painted the Mona Lisa?\nUser 8 | 2023-04-08 09:49:42 | What metal is liquid at room temperature?\nUser 6 | 2023-03-16 02:54:18 | What does HTTP stand for?\nUser 17 | 2023-01-17 12:18:33 | What is the national flower of Japan?\nUser 13 | 2023-01-01 09:35:22 | What metal is liquid at room temperature?\nUser 14 | 2023-05-06 00:42:32 | Where are the Pyramids of Giza?\nUser 14 | 2023-04-03 11:11:46 | How do vaccines work?\nUser 1 | 2023-01-27 19:51:22 | What is the tallest building in the world?\nUser 19 | 2023-01-14 23:47:29 | What is the boiling point of water?\nUser 4 | 2023-03-30 21:58:51 | What is the theory of relativity?\nUser 17 | 2023-05-22 08:22:41 | Why do we dream?\nUser 18 | 2023-03-02 10:08:20 | What is democracy?\nUser 15 | 2023-05-05 02:31:11 | How does the internet work?\nUser 12 | 2023-04-09 13:53:39 | Where is the Amazon River?\nUser 8 | 2023-05-23 07:59:45 | What is the full form of WHO?\nUser 19 | 2023-01-25 03:31:44 | What year did World War II end?\nUser 13 | 2023-06-10 10:51:57 | Why do birds migrate?\nUser 9 | 2023-03-10 02:24:35 | Who was the first person on the moon?\nUser 8 | 2023-01-15 08:20:21 | What is FBI short for?\nUser 13 | 2023-06-05 07:14:31 | What does ASAP stand for?\nUser 7 | 2023-06-24 23:35:39 | What does RSVP mean?\nUser 19 | 2023-03-04 17:13:13 | Where is the Taj Mahal?\nUser 7 | 2023-04-04 05:55:19 | How many continents are there?\nUser 12 | 2023-01-29 10:41:09 | What is FBI short for?\nUser 16 | 2023-03-09 19:12:43 | What country is the Great Wall in?\nUser 9 | 2023-05-26 11:27:25 | What is the hardest natural substance?\nUser 15 | 2023-05-26 02:52:02 | What causes earthquakes?\nUser 16 | 2023-06-16 13:35:44 | How many continents are there?\nUser 10 | 2023-04-12 23:24:19 | What is the abbreviation for California?\nUser 5 | 2023-02-19 02:31:56 | Who discovered America?\nUser 11 | 2023-01-24 01:42:55 | Where is the Taj Mahal?\nUser 11 | 2023-06-10 05:49:29 | Why do leaves change color in fall?\nUser 10 | 2023-03-09 05:05:01 | How tall is Mount Everest?\nUser 5 | 2023-04-28 19:31:24 | How does the internet work?\nUser 20 | 2023-02-18 19:31:32 | What is the national flower of Japan?\nUser 3 | 2023-04-25 21:27:16 | What year did World War II end?\nUser 1 | 2023-03-12 08:54:58 | How does the internet work?\nUser 12 | 2023-01-03 04:10:14 | Where is the Louvre Museum?\nUser 13 | 2023-02-11 19:38:17 | What is the largest ocean?\nUser 2 | 2023-03-01 18:23:57 | What causes earthquakes?\nUser 4 | 2023-02-10 15:23:12 | What causes inflation?\nUser 12 | 2023-05-18 09:42:53 | What does RSVP mean?\nUser 16 | 2023-05-13 16:26:17 | How long is a marathon?\nUser 11 | 2023-04-20 21:14:44 | What is PhD short for?\nUser 3 | 2023-06-16 19:50:26 | Where is Silicon Valley?\nUser 18 | 2023-01-09 12:01:49 | What planet is known as the Red Planet?\nUser 6 | 2023-01-26 13:50:23 | What tree produces acorns?\nUser 11 | 2023-02-26 05:02:11 | What is the speed of light?\nUser 7 | 2023-02-23 09:43:13 | Who founded Microsoft?\nUser 5 | 2023-04-07 02:52:08 | How do vaccines work?\nUser 10 | 2023-05-24 19:37:24 | What instrument has 88 keys?\nUser 4 | 2023-01-24 13:49:57 | Who wrote Romeo and Juliet?\nUser 19 | 2023-02-03 20:47:27 | What is the smallest country in the world?",
+  "task": {
+    "id": 1,
+    "query": "List all pairs of user IDs (no duplicate pairs, list lower ID first) where both users have at least one instance with an entity or location.",
+    "criteria": {
+      "type": "both_have_any",
+      "categories": [
+        "ENTY",
+        "LOC"
+      ]
+    }
+  },
+  "prompt": "In the above data, each line contains: User ID | Timestamp | Question\n\nThe questions can be labelled as one of these categories (the data does not provide the labels, you need to figure out the label from the semantics of the question):\n- description and abstract concept\n- entity  \n- human being\n- numeric value\n- location\n- abbreviation\n\nList all pairs of user IDs (no duplicate pairs, list lower ID first) where both users have at least one instance with an entity or location.\n\nIn your answer, list all pairs in the format (user id 1, user id 2), separated by newlines.",
+  "ground_truth_classifications": {
+    "1": [
+      {
+        "category": "DESC",
+        "timestamp": "2023-03-12 08:54:58",
+        "question": "How does the internet work?"
+      },
+      {
+        "category": "ENTY",
+        "timestamp": "2023-01-27 19:51:22",
+        "question": "What is the tallest building in the world?"
+      }
+    ],
+    "2": [
+      {
+        "category": "LOC",
+        "timestamp": "2023-01-09 01:05:05",
+        "question": "What continent is Egypt in?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-03-01 18:23:57",
+        "question": "What causes earthquakes?"
+      }
+    ],
+    "3": [
+      {
+        "category": "LOC",
+        "timestamp": "2023-06-16 19:50:26",
+        "question": "Where is Silicon Valley?"
+      },
+      {
+        "category": "NUM",
+        "timestamp": "2023-04-25 21:27:16",
+        "question": "What year did World War II end?"
+      }
+    ],
+    "4": [
+      {
+        "category": "DESC",
+        "timestamp": "2023-02-10 15:23:12",
+        "question": "What causes inflation?"
+      },
+      {
+        "category": "HUM",
+        "timestamp": "2023-02-09 07:50:21",
+        "question": "Who painted the Mona Lisa?"
+      },
+      {
+        "category": "HUM",
+        "timestamp": "2023-01-24 13:49:57",
+        "question": "Who wrote Romeo and Juliet?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-03-30 21:58:51",
+        "question": "What is the theory of relativity?"
+      }
+    ],
+    "5": [
+      {
+        "category": "DESC",
+        "timestamp": "2023-04-28 19:31:24",
+        "question": "How does the internet work?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-04-07 02:52:08",
+        "question": "How do vaccines work?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-06-10 22:31:10",
+        "question": "What city is the Colosseum in?"
+      },
+      {
+        "category": "HUM",
+        "timestamp": "2023-02-19 02:31:56",
+        "question": "Who discovered America?"
+      }
+    ],
+    "6": [
+      {
+        "category": "ABBR",
+        "timestamp": "2023-03-16 02:54:18",
+        "question": "What does HTTP stand for?"
+      },
+      {
+        "category": "ENTY",
+        "timestamp": "2023-01-26 13:50:23",
+        "question": "What tree produces acorns?"
+      }
+    ],
+    "7": [
+      {
+        "category": "NUM",
+        "timestamp": "2023-04-04 05:55:19",
+        "question": "How many continents are there?"
+      },
+      {
+        "category": "HUM",
+        "timestamp": "2023-02-23 09:43:13",
+        "question": "Who founded Microsoft?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-06-24 23:35:39",
+        "question": "What does RSVP mean?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-06-12 06:13:51",
+        "question": "Why do we dream?"
+      }
+    ],
+    "8": [
+      {
+        "category": "ENTY",
+        "timestamp": "2023-04-08 09:49:42",
+        "question": "What metal is liquid at room temperature?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-05-23 07:59:45",
+        "question": "What is the full form of WHO?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-01-15 08:20:21",
+        "question": "What is FBI short for?"
+      }
+    ],
+    "9": [
+      {
+        "category": "HUM",
+        "timestamp": "2023-03-10 02:24:35",
+        "question": "Who was the first person on the moon?"
+      },
+      {
+        "category": "ENTY",
+        "timestamp": "2023-05-26 11:27:25",
+        "question": "What is the hardest natural substance?"
+      }
+    ],
+    "10": [
+      {
+        "category": "ABBR",
+        "timestamp": "2023-04-12 23:24:19",
+        "question": "What is the abbreviation for California?"
+      },
+      {
+        "category": "NUM",
+        "timestamp": "2023-03-09 05:05:01",
+        "question": "How tall is Mount Everest?"
+      },
+      {
+        "category": "ENTY",
+        "timestamp": "2023-05-24 19:37:24",
+        "question": "What instrument has 88 keys?"
+      }
+    ],
+    "11": [
+      {
+        "category": "ABBR",
+        "timestamp": "2023-04-20 21:14:44",
+        "question": "What is PhD short for?"
+      },
+      {
+        "category": "NUM",
+        "timestamp": "2023-02-26 05:02:11",
+        "question": "What is the speed of light?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-01-24 01:42:55",
+        "question": "Where is the Taj Mahal?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-06-10 05:49:29",
+        "question": "Why do leaves change color in fall?"
+      }
+    ],
+    "12": [
+      {
+        "category": "LOC",
+        "timestamp": "2023-04-09 13:53:39",
+        "question": "Where is the Amazon River?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-05-16 09:09:13",
+        "question": "Where is the Taj Mahal?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-01-03 04:10:14",
+        "question": "Where is the Louvre Museum?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-05-18 09:42:53",
+        "question": "What does RSVP mean?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-01-29 10:41:09",
+        "question": "What is FBI short for?"
+      }
+    ],
+    "13": [
+      {
+        "category": "ENTY",
+        "timestamp": "2023-01-01 09:35:22",
+        "question": "What metal is liquid at room temperature?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-02-15 18:29:02",
+        "question": "What country is the Outback in?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-06-10 10:51:57",
+        "question": "Why do birds migrate?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-06-05 07:14:31",
+        "question": "What does ASAP stand for?"
+      },
+      {
+        "category": "ENTY",
+        "timestamp": "2023-02-11 19:38:17",
+        "question": "What is the largest ocean?"
+      }
+    ],
+    "14": [
+      {
+        "category": "LOC",
+        "timestamp": "2023-05-06 00:42:32",
+        "question": "Where are the Pyramids of Giza?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-04-03 11:11:46",
+        "question": "How do vaccines work?"
+      }
+    ],
+    "15": [
+      {
+        "category": "DESC",
+        "timestamp": "2023-05-26 02:52:02",
+        "question": "What causes earthquakes?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-05-05 02:31:11",
+        "question": "How does the internet work?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-02-02 04:40:28",
+        "question": "What country is the Outback in?"
+      }
+    ],
+    "16": [
+      {
+        "category": "LOC",
+        "timestamp": "2023-03-09 19:12:43",
+        "question": "What country is the Great Wall in?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-02-24 19:38:06",
+        "question": "What continent is Egypt in?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-02-21 11:20:57",
+        "question": "What is the full form of WHO?"
+      },
+      {
+        "category": "NUM",
+        "timestamp": "2023-06-16 13:35:44",
+        "question": "How many continents are there?"
+      },
+      {
+        "category": "NUM",
+        "timestamp": "2023-05-13 16:26:17",
+        "question": "How long is a marathon?"
+      }
+    ],
+    "17": [
+      {
+        "category": "ENTY",
+        "timestamp": "2023-01-17 12:18:33",
+        "question": "What is the national flower of Japan?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-05-22 08:22:41",
+        "question": "Why do we dream?"
+      }
+    ],
+    "18": [
+      {
+        "category": "DESC",
+        "timestamp": "2023-06-11 02:08:36",
+        "question": "How does photosynthesis work?"
+      },
+      {
+        "category": "ENTY",
+        "timestamp": "2023-01-09 12:01:49",
+        "question": "What planet is known as the Red Planet?"
+      },
+      {
+        "category": "DESC",
+        "timestamp": "2023-03-02 10:08:20",
+        "question": "What is democracy?"
+      }
+    ],
+    "19": [
+      {
+        "category": "ENTY",
+        "timestamp": "2023-02-03 20:47:27",
+        "question": "What is the smallest country in the world?"
+      },
+      {
+        "category": "LOC",
+        "timestamp": "2023-03-04 17:13:13",
+        "question": "Where is the Taj Mahal?"
+      },
+      {
+        "category": "NUM",
+        "timestamp": "2023-01-25 03:31:44",
+        "question": "What year did World War II end?"
+      },
+      {
+        "category": "ABBR",
+        "timestamp": "2023-04-01 15:25:19",
+        "question": "What does UNESCO mean?"
+      },
+      {
+        "category": "NUM",
+        "timestamp": "2023-01-14 23:47:29",
+        "question": "What is the boiling point of water?"
+      }
+    ],
+    "20": [
+      {
+        "category": "DESC",
+        "timestamp": "2023-03-28 03:58:42",
+        "question": "Why is the sky blue?"
+      },
+      {
+        "category": "ENTY",
+        "timestamp": "2023-02-18 19:31:32",
+        "question": "What is the national flower of Japan?"
+      }
+    ]
+  },
+  "correct_pairs": [
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      5
+    ],
+    [
+      1,
+      6
+    ],
+    [
+      1,
+      8
+    ],
+    [
+      1,
+      9
+    ],
+    [
+      1,
+      10
+    ],
+    [
+      1,
+      11
+    ],
+    [
+      1,
+      12
+    ],
+    [
+      1,
+      13
+    ],
+    [
+      1,
+      14
+    ],
+    [
+      1,
+      15
+    ],
+    [
+      1,
+      16
+    ],
+    [
+      1,
+      17
+    ],
+    [
+      1,
+      18
+    ],
+    [
+      1,
+      19
+    ],
+    [
+      1,
+      20
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      2,
+      8
+    ],
+    [
+      2,
+      9
+    ],
+    [
+      2,
+      10
+    ],
+    [
+      2,
+      11
+    ],
+    [
+      2,
+      12
+    ],
+    [
+      2,
+      13
+    ],
+    [
+      2,
+      14
+    ],
+    [
+      2,
+      15
+    ],
+    [
+      2,
+      16
+    ],
+    [
+      2,
+      17
+    ],
+    [
+      2,
+      18
+    ],
+    [
+      2,
+      19
+    ],
+    [
+      2,
+      20
+    ],
+    [
+      3,
+      5
+    ],
+    [
+      3,
+      6
+    ],
+    [
+      3,
+      8
+    ],
+    [
+      3,
+      9
+    ],
+    [
+      3,
+      10
+    ],
+    [
+      3,
+      11
+    ],
+    [
+      3,
+      12
+    ],
+    [
+      3,
+      13
+    ],
+    [
+      3,
+      14
+    ],
+    [
+      3,
+      15
+    ],
+    [
+      3,
+      16
+    ],
+    [
+      3,
+      17
+    ],
+    [
+      3,
+      18
+    ],
+    [
+      3,
+      19
+    ],
+    [
+      3,
+      20
+    ],
+    [
+      5,
+      6
+    ],
+    [
+      5,
+      8
+    ],
+    [
+      5,
+      9
+    ],
+    [
+      5,
+      10
+    ],
+    [
+      5,
+      11
+    ],
+    [
+      5,
+      12
+    ],
+    [
+      5,
+      13
+    ],
+    [
+      5,
+      14
+    ],
+    [
+      5,
+      15
+    ],
+    [
+      5,
+      16
+    ],
+    [
+      5,
+      17
+    ],
+    [
+      5,
+      18
+    ],
+    [
+      5,
+      19
+    ],
+    [
+      5,
+      20
+    ],
+    [
+      6,
+      8
+    ],
+    [
+      6,
+      9
+    ],
+    [
+      6,
+      10
+    ],
+    [
+      6,
+      11
+    ],
+    [
+      6,
+      12
+    ],
+    [
+      6,
+      13
+    ],
+    [
+      6,
+      14
+    ],
+    [
+      6,
+      15
+    ],
+    [
+      6,
+      16
+    ],
+    [
+      6,
+      17
+    ],
+    [
+      6,
+      18
+    ],
+    [
+      6,
+      19
+    ],
+    [
+      6,
+      20
+    ],
+    [
+      8,
+      9
+    ],
+    [
+      8,
+      10
+    ],
+    [
+      8,
+      11
+    ],
+    [
+      8,
+      12
+    ],
+    [
+      8,
+      13
+    ],
+    [
+      8,
+      14
+    ],
+    [
+      8,
+      15
+    ],
+    [
+      8,
+      16
+    ],
+    [
+      8,
+      17
+    ],
+    [
+      8,
+      18
+    ],
+    [
+      8,
+      19
+    ],
+    [
+      8,
+      20
+    ],
+    [
+      9,
+      10
+    ],
+    [
+      9,
+      11
+    ],
+    [
+      9,
+      12
+    ],
+    [
+      9,
+      13
+    ],
+    [
+      9,
+      14
+    ],
+    [
+      9,
+      15
+    ],
+    [
+      9,
+      16
+    ],
+    [
+      9,
+      17
+    ],
+    [
+      9,
+      18
+    ],
+    [
+      9,
+      19
+    ],
+    [
+      9,
+      20
+    ],
+    [
+      10,
+      11
+    ],
+    [
+      10,
+      12
+    ],
+    [
+      10,
+      13
+    ],
+    [
+      10,
+      14
+    ],
+    [
+      10,
+      15
+    ],
+    [
+      10,
+      16
+    ],
+    [
+      10,
+      17
+    ],
+    [
+      10,
+      18
+    ],
+    [
+      10,
+      19
+    ],
+    [
+      10,
+      20
+    ],
+    [
+      11,
+      12
+    ],
+    [
+      11,
+      13
+    ],
+    [
+      11,
+      14
+    ],
+    [
+      11,
+      15
+    ],
+    [
+      11,
+      16
+    ],
+    [
+      11,
+      17
+    ],
+    [
+      11,
+      18
+    ],
+    [
+      11,
+      19
+    ],
+    [
+      11,
+      20
+    ],
+    [
+      12,
+      13
+    ],
+    [
+      12,
+      14
+    ],
+    [
+      12,
+      15
+    ],
+    [
+      12,
+      16
+    ],
+    [
+      12,
+      17
+    ],
+    [
+      12,
+      18
+    ],
+    [
+      12,
+      19
+    ],
+    [
+      12,
+      20
+    ],
+    [
+      13,
+      14
+    ],
+    [
+      13,
+      15
+    ],
+    [
+      13,
+      16
+    ],
+    [
+      13,
+      17
+    ],
+    [
+      13,
+      18
+    ],
+    [
+      13,
+      19
+    ],
+    [
+      13,
+      20
+    ],
+    [
+      14,
+      15
+    ],
+    [
+      14,
+      16
+    ],
+    [
+      14,
+      17
+    ],
+    [
+      14,
+      18
+    ],
+    [
+      14,
+      19
+    ],
+    [
+      14,
+      20
+    ],
+    [
+      15,
+      16
+    ],
+    [
+      15,
+      17
+    ],
+    [
+      15,
+      18
+    ],
+    [
+      15,
+      19
+    ],
+    [
+      15,
+      20
+    ],
+    [
+      16,
+      17
+    ],
+    [
+      16,
+      18
+    ],
+    [
+      16,
+      19
+    ],
+    [
+      16,
+      20
+    ],
+    [
+      17,
+      18
+    ],
+    [
+      17,
+      19
+    ],
+    [
+      17,
+      20
+    ],
+    [
+      18,
+      19
+    ],
+    [
+      18,
+      20
+    ],
+    [
+      19,
+      20
+    ]
+  ],
+  "num_correct_pairs": 153,
+  "metadata": {
+    "num_users": 20,
+    "num_entries": 64,
+    "seed": 42
+  }
+}

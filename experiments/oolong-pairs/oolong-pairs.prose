@@ -1,0 +1,196 @@
+# oolong-pairs.prose - OOLONG-Pairs Benchmark using RLM pattern
+# ============================================================================
+#
+# This implements the OOLONG-Pairs task from the RLM paper (arXiv:2512.24601).
+#
+# THE TASK:
+# Given a dataset of questions labeled by user IDs and timestamps, find all
+# pairs of users that satisfy complex criteria involving semantic classification
+# and cross-user comparisons.
+#
+# WHY THIS REQUIRES RLM:
+# - Vanilla LLMs score 0.04% F1 on this task
+# - RLM achieves 58.00% F1 (1,450x improvement)
+# - The task requires O(n²) pairwise reasoning that exhausts attention
+#
+# THE APPROACH:
+# 1. DECOMPOSE: Split dataset into chunks
+# 2. CLASSIFY: Use sub-LLM calls to classify each question semantically
+# 3. AGGREGATE: Group classifications by user ID
+# 4. COMPUTE: Programmatically find all pairs matching criteria
+# 5. OUTPUT: Return the matching pairs
+#
+# ============================================================================
+
+agent initializer:
+  model: sonnet
+  prompt: """
+  You initialize state for the OOLONG-Pairs task.
+  
+  Read the input file and set up the initial state:
+  1. Load the dataset from input.txt
+  2. Parse each line into {user_id, timestamp, question}
+  3. Store in state.json for processing
+  
+  State structure:
+  {
+    "phase": "classify",
+    "entries": [...],           // All parsed entries
+    "current_index": 0,         // Which entry we're classifying
+    "classifications": {},      // user_id -> [{category, timestamp, question}]
+    "task_query": "...",        // The task to solve
+    "done": false,
+    "answer": null
+  }
+  """
+
+agent classifier:
+  model: sonnet
+  prompt: """
+  You classify questions into semantic categories.
+  
+  Categories:
+  - DESC: Description and abstract concept (what/how/why questions about concepts)
+  - ENTY: Entity (what is the X, questions about things/objects)
+  - HUM: Human being (who questions)
+  - NUM: Numeric value (how many, what year, measurements)
+  - LOC: Location (where questions)
+  - ABBR: Abbreviation (what does X stand for)
+  
+  For each question, output ONLY the category code (DESC, ENTY, HUM, NUM, LOC, or ABBR).
+  """
+
+agent worker:
+  model: sonnet
+  prompt: """
+  You are a worker processing the OOLONG-Pairs task.
+  
+  PHASES:
+  
+  "classify" - Classify questions in batches
+    1. Read current state
+    2. Take next batch of unclassified entries (e.g., 10 at a time)
+    3. For EACH question, spawn a Task to classify it:
+       Task({ prompt: "Classify this question: <question>" })
+    4. Collect results, update state.classifications
+    5. If all entries classified, set phase = "compute"
+  
+  "compute" - Find matching pairs
+    1. Read the task query from state
+    2. Parse the criteria (which categories, any date constraints)
+    3. Write Python code to enumerate all user pairs
+    4. Filter pairs by the criteria
+    5. Set state.answer with the pairs, state.done = true
+  
+  IMPORTANT for classification:
+  - Use the Task tool to classify questions (this is the sub-LLM call)
+  - Process in batches to be efficient
+  - Store results keyed by user_id
+  
+  IMPORTANT for computation:
+  - Use Python code for the O(n²) pair enumeration
+  - Parse date constraints carefully
+  - Output pairs as (lower_id, higher_id)
+  """
+
+agent extractor:
+  model: haiku
+  prompt: """
+  Extract the final answer from state.json.
+  Format the pairs as requested: (user id 1, user id 2), one per line.
+  """
+
+
+# Configuration
+const state_dir = "./tmp/oolong_state"
+const state_file = "./tmp/oolong_state/state.json"
+
+
+# Step 1: Initialize
+session: initializer
+  prompt: """
+  Initialize the OOLONG-Pairs task.
+  
+  1. Create state directory: mkdir -p {state_dir}
+  2. Read input from: ./experiments/oolong-pairs/input.txt
+  3. Parse the dataset (lines before the blank line are data)
+  4. Extract the task query (after the blank line)
+  5. Write initial state to {state_file}
+  
+  The data format is:
+  User <id> | <timestamp> | <question>
+  
+  Parse into: {"user_id": <int>, "timestamp": "<str>", "question": "<str>"}
+  """
+
+
+# Step 2: Main processing loop
+loop until **state file shows done=true** (max: 50):
+  
+  session: worker
+    prompt: """
+    Execute one iteration of OOLONG-Pairs processing.
+    
+    State file: {state_file}
+    
+    1. Read current state
+    2. Based on phase:
+       - "classify": Classify a batch of questions using Task tool for each
+       - "compute": Write Python to find matching pairs
+    3. Update state
+    4. If compute phase complete, set done=true
+    
+    FOR CLASSIFICATION:
+    Use the Task tool to classify each question. Example:
+    
+    Task({
+      prompt: "Classify this question into one category (DESC, ENTY, HUM, NUM, LOC, ABBR):\n\nQuestion: Who invented the telephone?\n\nRespond with ONLY the category code.",
+      description: "Classify question",
+      subagent_type: "general-purpose",
+      model: "haiku"
+    })
+    
+    You can spawn multiple Task calls in one response for parallel classification.
+    
+    FOR COMPUTATION:
+    Write Python code that:
+    1. Loads classifications from state
+    2. Parses the task criteria
+    3. Enumerates all (user_i, user_j) pairs where i < j
+    4. Filters by criteria
+    5. Outputs matching pairs
+    """
+
+
+# Step 3: Extract answer
+let answer = session: extractor
+  prompt: """
+  Read {state_file} and format the final answer.
+  
+  Output the pairs in the format:
+  (1, 2)
+  (1, 5)
+  (3, 7)
+  ...
+  
+  One pair per line, lower ID first.
+  """
+
+
+# ============================================================================
+# EXPECTED BEHAVIOR
+# ============================================================================
+#
+# Iteration 1-5: Classification phase
+#   - Worker reads entries, spawns Task calls to classify each question
+#   - Each Task call returns a category (DESC, ENTY, HUM, NUM, LOC, ABBR)
+#   - Worker accumulates classifications by user_id
+#
+# Iteration 6: Compute phase
+#   - Worker writes Python to enumerate pairs
+#   - Filters by task criteria
+#   - Sets done=true with answer
+#
+# Final: Extractor formats output
+#
+# ============================================================================

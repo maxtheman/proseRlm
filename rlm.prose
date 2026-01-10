@@ -1,0 +1,534 @@
+# rlm.prose - Iterative Problem Decomposition with Persistent State
+# ============================================================================
+#
+# WHAT THIS PROGRAM DOES
+# ----------------------
+# This is a general-purpose problem-solving pattern that:
+#
+#   1. Takes a complex problem as input
+#   2. Breaks it into smaller pieces (decomposition)
+#   3. Processes each piece iteratively
+#   4. Combines results into a final answer (synthesis)
+#   5. Persists all state to files (not context window)
+#
+# Think of it as a "divide and conquer" VM where an LLM worker decides
+# how to break down the problem and what to do each iteration.
+#
+#
+# WHY THIS APPROACH?
+# ------------------
+# Complex problems often require:
+#   - Processing more data than fits in a context window
+#   - Multiple LLM calls to handle different parts
+#   - Accumulating results across many steps
+#   - Dynamic re-planning when you discover the problem is harder than expected
+#
+# This pattern handles all of that by:
+#   - Storing state in FILES (not context) - unlimited size, persistent
+#   - Running a LOOP where each iteration makes progress
+#   - Letting the WORKER decide what to do based on current state
+#   - Exiting when the worker signals DONE
+#
+#
+# THE EXECUTION MODEL
+# -------------------
+#
+#   ┌─────────────────────────────────────────────────────────────┐
+#   │                      VM (You, the orchestrator)             │
+#   │                                                             │
+#   │   1. Initialize state file with problem                     │
+#   │   2. Loop until done (max 30 iterations for safety):        │
+#   │      - Spawn worker session                                 │
+#   │      - Worker reads state, does work, writes state          │
+#   │      - Check if state.done == true                          │
+#   │   3. Extract final answer from state                        │
+#   │                                                             │
+#   └─────────────────────────────────────────────────────────────┘
+#                              │
+#                              ▼
+#   ┌─────────────────────────────────────────────────────────────┐
+#   │                    Worker Session (Subagent)                │
+#   │                                                             │
+#   │   Each iteration, the worker:                               │
+#   │   - Reads current state from ./tmp/rlm_state/               │
+#   │   - Decides what phase we're in (decompose/process/synth)   │
+#   │   - Does the work for this iteration                        │
+#   │   - Writes updated state back to files                      │
+#   │   - Sets done=true when finished                            │
+#   │                                                             │
+#   └─────────────────────────────────────────────────────────────┘
+#                              │
+#                              ▼
+#   ┌─────────────────────────────────────────────────────────────┐
+#   │                    State Directory (./tmp/rlm_state/)       │
+#   │                                                             │
+#   │   state.json     - Current phase, items, results, done flag │
+#   │   *.py           - Python scripts worker can execute        │
+#   │   *.db           - SQLite for large/queryable data          │
+#   │   *.txt, *.csv   - Any other data the worker needs          │
+#   │                                                             │
+#   │   This is NOT limited to JSON. Use any file format.         │
+#   │   DO NOT try to fit large data in context - use files.      │
+#   │                                                             │
+#   └─────────────────────────────────────────────────────────────┘
+#
+#
+# WORKER CAPABILITIES
+# -------------------
+# The worker session has FULL computational power:
+#
+#   1. EXECUTE PYTHON CODE
+#      Write a .py file and run it:
+#        cat > ./tmp/rlm_state/script.py << 'EOF'
+#        import re, pandas as pd
+#        # any Python code
+#        EOF
+#        python ./tmp/rlm_state/script.py
+#
+#   2. USE COMPLEX DATA STRUCTURES
+#      - SQLite databases for queries
+#      - Pickle files for Python objects
+#      - CSV/JSON for structured data
+#
+#   3. SPAWN PARALLEL SUB-LLM CALLS
+#      Use multiple Task tool calls in one session:
+#        Task({ prompt: "Analyze part 1" })
+#        Task({ prompt: "Analyze part 2" })
+#      These run concurrently.
+#
+#   4. DYNAMICALLY RE-DECOMPOSE
+#      If an item is too complex, split it:
+#      - Add more items to state.items
+#      - Set state.phase = "decompose"
+#      - The loop continues with finer granularity
+#
+#
+# STATE STRUCTURE
+# ---------------
+# The main state.json file tracks progress:
+#
+#   {
+#     "problem": "The original problem to solve",
+#     "strategy": "How we decided to approach it",
+#     "phase": "decompose | process | synthesize | done",
+#     "items": ["item1", "item2", ...],     // Work items
+#     "current_index": 0,                    // Which item we're on
+#     "results": [...],                      // Accumulated results
+#     "workspace": {},                       // Scratch space
+#     "iteration": 0,                        // Loop counter
+#     "done": false,                         // Exit flag
+#     "answer": null                         // Final answer when done
+#   }
+#
+# But remember: you can use ADDITIONAL files for large data.
+# Don't cram everything into state.json.
+#
+#
+# VM EXECUTION NOTES
+# ------------------
+# You ARE the OpenProse VM. When executing this file:
+#
+# 1. SPAWN SESSIONS VIA THE TASK TOOL
+#    Each `session:` = one Task tool call
+#
+# 2. DON'T SIMULATE - DELEGATE
+#    Don't think "what would the worker say" - spawn it and let it work
+#
+# 3. TRACK STATE VIA NARRATION
+#    Use emoji markers: 📋 start, 📍 current, 📦 binding, ✅ done, 🔄 loop
+#
+# 4. EVALUATE CONDITIONS YOURSELF
+#    For `loop until **state file shows done=true**`:
+#    Read the state file and check if done is true
+#
+# 5. PASS CONTEXT CLEARLY
+#    When session has `context: { a, b }`, include those values in the prompt
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# AGENT DEFINITIONS
+# ----------------------------------------------------------------------------
+
+agent initializer:
+  model: sonnet
+  prompt: """
+  You initialize the state for a problem-solving loop.
+  
+  Your job:
+  1. Analyze the input problem
+  2. Decide if it needs decomposition or can be solved directly
+  3. Create the initial state file
+  
+  Use Bash to create the state directory and write state.json:
+  
+    mkdir -p ./tmp/rlm_state
+    cat > ./tmp/rlm_state/state.json << 'EOF'
+    {
+      "problem": "the original problem",
+      "strategy": "your chosen approach",
+      "phase": "decompose",
+      "items": [],
+      "current_index": 0,
+      "results": [],
+      "workspace": {},
+      "iteration": 0,
+      "done": false,
+      "answer": null
+    }
+    EOF
+  
+  If the problem is simple enough to solve directly:
+    - Set phase: "process" with items: [problem]
+  
+  If the problem needs to be broken down:
+    - Set phase: "decompose" with items: []
+    - The worker will figure out how to decompose it
+  """
+
+agent worker:
+  model: sonnet
+  prompt: """
+  You are a worker agent executing one iteration of a problem-solving loop.
+  
+  Each iteration, you:
+  1. Read the current state from the state file
+  2. Do ONE unit of work based on the current phase
+  3. Update the state file with your progress
+  4. The loop continues until you set done=true
+  
+  
+  PHASES:
+  
+  "decompose" - Break the problem into smaller pieces
+    → Analyze the problem
+    → Create a list of work items in state.items
+    → Set state.phase = "process"
+  
+  "process" - Handle one item at a time
+    → Process state.items[state.current_index]
+    → Add result to state.results
+    → Increment state.current_index
+    → If all items done, set state.phase = "synthesize"
+  
+  "synthesize" - Combine results into final answer
+    → Look at all state.results
+    → Create the final answer
+    → Set state.done = true and state.answer = <your answer>
+  
+  
+  YOUR CAPABILITIES:
+  
+  1. EXECUTE PYTHON CODE
+     Write and run Python scripts:
+       cat > ./tmp/rlm_state/script.py << 'EOF'
+       import re, pandas as pd
+       # Your code here
+       result = do_something()
+       print(result)
+       EOF
+       python ./tmp/rlm_state/script.py
+  
+  2. USE ANY FILE FORMAT FOR STATE
+     Don't cram everything into state.json. Use:
+     - SQLite: sqlite3 ./tmp/rlm_state/data.db "SELECT ..."
+     - CSV/text files for large data
+     - Pickle for Python objects
+  
+  3. SPAWN PARALLEL SUB-TASKS
+     Use the Task tool for concurrent LLM queries:
+       Task({ prompt: "Analyze part 1" })
+       Task({ prompt: "Analyze part 2" })
+  
+  4. RE-DECOMPOSE IF NEEDED
+     If an item is too complex:
+     - Split it into smaller items
+     - Update state.items
+     - Set state.phase = "decompose"
+     - The loop will continue with finer granularity
+  
+  
+  IMPORTANT:
+  - Read state file at START of each iteration
+  - Write state file at END of each iteration
+  - Set state.done = true when completely finished
+  - Put your final answer in state.answer
+  """
+
+agent extractor:
+  model: haiku
+  prompt: """
+  You extract the final answer from the state file.
+  
+  Read ./tmp/rlm_state/state.json and return state.answer in a clean,
+  well-formatted output.
+  
+  If state.answer is null but state.results exists, synthesize a
+  coherent answer from the results.
+  """
+
+agent batch_worker:
+  model: sonnet
+  prompt: """
+  You process a single item from a batch operation.
+  
+  You'll receive:
+  - The specific item to process
+  - The overall problem context
+  
+  Return your result for this specific item only.
+  Be concise - your output will be combined with other batch results.
+  """
+
+
+# ----------------------------------------------------------------------------
+# CONFIGURATION
+# ----------------------------------------------------------------------------
+
+# State is stored in a temp directory - NOT in the context window
+const state_dir = "./tmp/rlm_state"
+const state_file = "./tmp/rlm_state/state.json"
+
+
+# ----------------------------------------------------------------------------
+# MAIN PROGRAM
+# ----------------------------------------------------------------------------
+
+# Step 1: Initialize state
+# Analyze the problem and set up the initial state file
+session: initializer
+  prompt: """
+  Initialize state for this problem:
+  
+  PROBLEM:
+  {problem}
+  
+  Create the state directory and initial state file:
+  - mkdir -p {state_dir}
+  - Write initial state to {state_file}
+  
+  Analyze the problem and decide:
+  - Simple problem? -> phase: "process", items: [problem]
+  - Needs breakdown? -> phase: "decompose", items: []
+  """
+
+
+# Step 2: Main processing loop
+# The VM iterates; the worker decides what to do each iteration
+# Loop exits when worker sets done=true OR max iterations reached
+
+loop until **state file shows done=true** (max: 30):
+  
+  session: worker
+    prompt: """
+    Execute one iteration of problem solving.
+    
+    State file: {state_file}
+    
+    Steps:
+    1. Read current state: cat {state_file}
+    2. Based on state.phase, do one unit of work
+    3. Update state with your progress
+    4. Write updated state back to {state_file}
+    
+    Remember:
+    - decompose: break problem into items, then set phase="process"
+    - process: handle one item, add to results, increment index
+    - synthesize: combine results, set done=true and answer=<result>
+    
+    Use state.workspace for any intermediate data.
+    Use separate files (SQLite, CSV, etc.) for large data.
+    """
+
+
+# Step 3: Extract and return final answer
+let answer = session: extractor
+  prompt: """
+  Extract the final answer from: {state_file}
+  
+  Read the state file and return state.answer in a clean, usable format.
+  If needed, format the answer for readability.
+  """
+
+
+# ----------------------------------------------------------------------------
+# PARALLEL BATCH PROCESSING (Optional Extension)
+# ----------------------------------------------------------------------------
+# 
+# For problems where you need to process many items concurrently,
+# add a "batch_process" phase:
+#
+#   if **state.phase == "batch_process"**:
+#     
+#     # Read items to batch process
+#     let batch_items = session "Read state.batch_items from {state_file}"
+#     
+#     # Process all items in parallel
+#     parallel for item in batch_items:
+#       session: batch_worker
+#         prompt: """
+#         Process this item: {item}
+#         Problem context: {problem}
+#         """
+#     
+#     # Write all results back to state
+#     session "Write parallel results to state.results in {state_file}"
+#       context: parallel_results
+#
+# This enables fan-out parallelism - useful for:
+# - Analyzing multiple documents simultaneously
+# - Querying multiple perspectives on a question
+# - Processing chunks of data in parallel
+
+
+# ----------------------------------------------------------------------------
+# EXAMPLE USAGE
+# ----------------------------------------------------------------------------
+#
+# To run this on a problem:
+#
+#   prose-run rlm.prose --problem="Analyze the key themes in War and Peace"
+#
+# The state file will show the progression:
+#
+#   Iteration 0: phase="decompose", items=[]
+#   Iteration 1: phase="process", items=["theme1", "theme2", "theme3"]
+#   Iteration 2: phase="process", current_index=1, results=["analysis1"]
+#   Iteration 3: phase="process", current_index=2, results=["analysis1", "analysis2"]
+#   Iteration 4: phase="synthesize", results=["analysis1", "analysis2", "analysis3"]
+#   Iteration 5: phase="done", done=true, answer="Final synthesis..."
+#
+#
+# ----------------------------------------------------------------------------
+# ADVANCED PATTERNS
+# ----------------------------------------------------------------------------
+#
+# 1. MULTI-LEVEL DECOMPOSITION
+#    For problems requiring hierarchical breakdown, use a stack:
+#
+#    state.workspace.decomposition_stack = [
+#      { level: 0, items: ["main problem"] },
+#      { level: 1, items: ["sub1", "sub2"] },
+#      { level: 2, items: ["sub1a", "sub1b"] }
+#    ]
+#
+#    The worker manages the stack:
+#    - Process deepest level first
+#    - When a level is complete, synthesize and pop
+#    - Continue until stack is empty
+#
+#
+# 2. DYNAMIC CHUNKING
+#    For long documents, have decompose phase create chunks:
+#
+#    state.items = [
+#      { chunk_id: 1, start: 0, end: 1000, text: "..." },
+#      { chunk_id: 2, start: 1000, end: 2000, text: "..." },
+#      ...
+#    ]
+#
+#    The worker processes chunks independently, aggregating to results.
+#
+#
+# 3. ITERATIVE REFINEMENT
+#    Use state.workspace.drafts to track versions:
+#
+#    state.workspace.drafts = [
+#      { version: 1, content: "...", feedback: "needs more detail" },
+#      { version: 2, content: "...", feedback: "good" }
+#    ]
+#
+#    Worker checks last feedback, refines if needed, marks done when satisfied.
+#
+#
+# 4. TREE SEARCH
+#    Track exploration state:
+#
+#    state.workspace.tree = {
+#      root: { id: 0, children: [1, 2, 3], score: null },
+#      nodes: {
+#        1: { content: "...", score: 0.8, children: [] },
+#        2: { content: "...", score: 0.6, children: [4, 5] },
+#        ...
+#      },
+#      best_path: [0, 2, 5]
+#    }
+#
+#    Worker expands promising nodes, prunes low-scoring branches.
+#
+#
+# 5. SUB-LLM CALLS WITHIN PROCESSING (llm_query equivalent)
+#    When the worker needs to make LLM calls as part of its processing
+#    (equivalent to Python RLM's llm_query() function), use the Task tool
+#    directly within the worker session:
+#
+#    Example: Processing multiple chunks with LLM analysis
+#    
+#    The worker session can:
+#    a) Read chunks from state
+#    b) Spawn Task calls for each chunk (these run as sub-agents)
+#    c) Collect results and write back to state
+#
+#    # In worker session:
+#    # 1. Read state to get chunks
+#    chunks = read_state()["items"]
+#    
+#    # 2. For each chunk, spawn a Task (sub-LLM call)
+#    #    The worker uses the Task tool directly:
+#    Task({ prompt: f"Analyze this chunk: {chunk}" })
+#    
+#    # 3. Collect results and update state
+#    
+#    For PARALLEL sub-LLM calls (equivalent to llm_query_batched):
+#    - Spawn multiple Task calls in a single worker response
+#    - All Task calls execute concurrently
+#    - Results are collected before the worker continues
+#
+#    This achieves the same capability as Python RLM's:
+#      results = [llm_query(f"Analyze: {chunk}") for chunk in chunks]
+#    
+#    The difference is architectural:
+#    - Python RLM: llm_query() is a function call within exec()
+#    - rlm.prose: Task tool is invoked by the worker session directly
+#    
+#    Both achieve the same result: sub-LLM calls during processing.
+#
+#
+# ----------------------------------------------------------------------------
+# WHY THIS WORKS
+# ----------------------------------------------------------------------------
+#
+# This pattern is powerful because it separates concerns:
+#
+#   THE VM (orchestrator):
+#   - Controls the iteration loop
+#   - Enforces a safety bound (max iterations)
+#   - Checks the termination condition
+#   - Spawns worker sessions
+#
+#   THE WORKER (subagent):
+#   - Decides what to do each iteration
+#   - Reads and writes state to files
+#   - Can execute arbitrary Python code
+#   - Can spawn parallel sub-LLM calls
+#   - Signals completion by setting done=true
+#
+#   THE STATE DIRECTORY:
+#   - Persists data across iterations (unlimited size)
+#   - Supports any file format (JSON, SQLite, CSV, pickle, etc.)
+#   - Keeps data OUT of the context window
+#   - Allows complex data structures and queries
+#
+# The key insight:
+#
+#   Complex problems require MORE than fits in a context window.
+#   By persisting state to FILES, we can:
+#   - Process arbitrarily large data
+#   - Accumulate results across many iterations
+#   - Use real databases for complex queries
+#   - Execute real Python for precise computations
+#
+# This is a REAL virtual machine for iterative problem decomposition.
+# The worker has full computational power - not just LLM reasoning.
+#
+# ============================================================================

@@ -1,0 +1,520 @@
+# research-loop.prose - Generalized Research Framework
+# ============================================================================
+#
+# VM EXECUTION NOTES (READ THIS FIRST)
+# ------------------------------------
+# You ARE the OpenProse VM. When executing this file:
+#
+# 1. YOU SPAWN SESSIONS VIA THE TASK TOOL
+#    - Each `session:` statement = one Task tool call
+#    - Do NOT manually simulate what agents would say
+#    - Do NOT use `interactions_create` directly - use Task
+#    - The Task tool IS how you execute sessions
+#
+# 2. FOLLOW THE PROGRAM STRUCTURE
+#    - Execute statements in order
+#    - Track state via narration (emoji markers)
+#    - The loop condition is evaluated by YOU (the VM)
+#    - Pass context between sessions as specified
+#
+# 3. COMMON MISTAKE TO AVOID
+#    If you find yourself thinking "let me simulate what the critic would say"
+#    or "I'll manually create an interaction" - STOP. That's breaking character.
+#    
+#    Instead: Use the Task tool to spawn the session. Let the subagent do its
+#    job. You are the orchestrator, not the performer.
+#
+# 4. WHEN RESUMING FROM CONTEXT SUMMARY
+#    If this session was restored from a summary, you may have partial state.
+#    - Read the prose file to understand the program structure
+#    - Reconstruct where you are in execution from the summary
+#    - Continue executing FROM THAT POINT using Task tool calls
+#    - Do NOT re-run completed sessions
+#
+# 5. THE NARRATION PROTOCOL
+#    Use emoji markers to track your execution state:
+#    📋 Program start/end
+#    📍 Current statement being executed  
+#    📦 Variable binding (let x = ...)
+#    ✅ Session complete
+#    🔄 Loop iteration
+#    ➡️ Condition evaluation
+#
+#    This helps you (and observers) track where you are in the program.
+#
+# 6. SPAWNING SESSIONS CORRECTLY
+#    When you see `session: agent_name`, execute it as:
+#    
+#    Task({
+#      prompt: "<the prompt with context merged in>",
+#      description: "OpenProse session: <brief description>",
+#      subagent_type: "general-purpose",
+#      model: "<from agent definition>"
+#    })
+#
+#    Wait for the result. Bind it to a variable if specified.
+#    Then continue to the next statement.
+#
+# ============================================================================
+#
+# A reusable research loop that can be applied to any task requiring:
+# - Deep investigation of a topic/codebase/problem
+# - Critical review to catch gaps and wrong directions  
+# - User checkpoint to validate assumptions before going deep
+# - Iterative refinement until quality bar is met
+# - Final synthesis into actionable output
+#
+#
+# HOW TO USE
+# ----------
+# Pass your task via the `task` input variable:
+#
+#   prose-run research-loop.prose \
+#     --task="Analyze the authentication system and propose improvements" \
+#     --output_file="./auth-analysis.md"
+#
+# Or for codebase research:
+#
+#   prose-run research-loop.prose \
+#     --task="Understand how the RLM library works and map its concepts to OpenProse" \
+#     --context_paths="./rlm/,./openprose/" \
+#     --output_file="./rlm-mapping.md"
+#
+#
+# WHAT THIS FRAMEWORK DOES
+# ------------------------
+# 1. FIRST PASS: Initial research + meta-review
+#    - Researcher does deep dive on the task
+#    - Critic challenges both details AND direction
+#    - Meta-reviewer surfaces assumptions for user validation
+#    - VM pauses for user confirmation (via discretion condition)
+#
+# 2. SUBSEQUENT PASSES: Iterate based on feedback
+#    - Researcher addresses critique + user feedback
+#    - Critic reviews revision, marks issues RESOLVED/STILL OPEN
+#    - Loop continues until critique has no blocking issues
+#
+# 3. FINAL SYNTHESIS: Produce actionable output
+#    - Synthesizer creates final deliverable
+#    - Written to specified output file
+#
+#
+# KEY PATTERNS USED
+# -----------------
+# - DECISION POINT flags: Surface choices that depend on user preference
+# - REFRAME NEEDED flags: Catch when research is going down wrong path
+# - Assumptions surfacing: Prevent blind spots from unstated assumptions
+# - User checkpoint: Force validation before deep implementation work
+# - Pass tracking: Different behavior for first pass vs iterations
+#
+#
+# INPUTS
+# ------
+# task:          (required) The research task to perform
+# context_paths: (optional) Comma-separated paths to analyze
+# output_file:   (optional) Where to write final output (default: ./research-output.md)
+# max_passes:    (optional) Maximum iteration passes (default: 5)
+#
+# ============================================================================
+
+
+# ----------------------------------------------------------------------------
+# AGENT DEFINITIONS
+# ----------------------------------------------------------------------------
+
+agent researcher:
+  model: opus
+  prompt: """
+  You are a technical researcher performing deep investigation on a given task.
+  
+  Your approach:
+  1. Be thorough - read actual files, cite specific evidence
+  2. Surface assumptions - flag when you're assuming something about user intent
+  3. Identify decision points - where multiple valid approaches exist
+  
+  When you notice something that could go multiple directions, flag it:
+  "DECISION POINT: [description] - Options: A) ... B) ..."
+  
+  When you make an assumption about what the user wants, flag it:
+  "ASSUMPTION: [what you're assuming] - Verify with user if critical"
+  
+  Cite specific files and code when making claims.
+  """
+
+agent critic:
+  model: opus
+  prompt: """
+  You are a critical technical reviewer. Your job is to ensure research quality
+  by challenging both the DETAILS and the DIRECTION.
+  
+  Watch for:
+  - Gaps in reasoning or evidence
+  - Unstated assumptions about what the user actually wants
+  - Myopic focus (too deep on one area, missing the bigger picture)
+  - Alternative framings that weren't considered
+  - Whether we're solving the right problem at all
+  
+  When research is going down a rabbit hole, call it out:
+  "REFRAME NEEDED: We're assuming X, but maybe the real question is Y"
+  
+  For each issue you raise, categorize it:
+  - BLOCKING: Must be resolved before proceeding
+  - IMPORTANT: Should be addressed but not a blocker
+  - MINOR: Nice to fix but low priority
+  
+  Be constructive - don't just criticize, suggest how to fix.
+  """
+
+agent meta_reviewer:
+  model: sonnet
+  prompt: """
+  You review the research PROCESS, not the content details.
+  
+  Your job is to surface things the user should weigh in on before
+  the research goes deeper. This prevents wasted effort on wrong directions.
+  
+  Output format:
+  
+  ## Assumptions Made
+  - [list assumptions that need user validation]
+  
+  ## Decision Points for User
+  - [list decisions where user preference matters]
+  - [include tradeoffs for each option]
+  
+  ## Alternative Framings
+  - [list other ways to think about this problem]
+  - [note if any seem more promising]
+  
+  ## Process Observations  
+  - [note if agents seem myopic or off-track]
+  - [flag if scope is too broad or too narrow]
+  
+  ## Recommended Direction
+  - [your suggestion for how to proceed]
+  - [what the user should confirm before continuing]
+  
+  If everything looks good and no user input is needed, say:
+  "READY TO PROCEED - No critical decisions pending."
+  
+  Otherwise, end with:
+  "AWAITING USER INPUT - Please confirm direction before continuing."
+  """
+
+agent synthesizer:
+  model: opus
+  prompt: """
+  You synthesize research into clear, actionable deliverables.
+  
+  Your output should be:
+  - Well-structured with clear sections
+  - Concrete and actionable (not vague recommendations)
+  - Include specific examples where helpful
+  - Acknowledge limitations and open questions
+  
+  Adapt your output format to the task:
+  - For analysis tasks: findings, implications, recommendations
+  - For implementation tasks: specs, code examples, step-by-step plans
+  - For comparison tasks: side-by-side analysis, tradeoffs, verdict
+  - For exploration tasks: map of the space, key insights, next steps
+  """
+
+
+# ----------------------------------------------------------------------------
+# CONFIGURATION
+# ----------------------------------------------------------------------------
+
+# Inputs with defaults
+# (In actual OpenProse, these would come from CLI args or calling context)
+# For now, these serve as documentation of expected inputs
+
+# const task = "{{task}}"  # REQUIRED: The research task
+# const context_paths = "{{context_paths}}"  # OPTIONAL: Paths to analyze
+# const output_file = "{{output_file | default: './research-output.md'}}"
+# const max_passes = {{max_passes | default: 5}}
+
+
+# ----------------------------------------------------------------------------
+# STATE TRACKING
+# ----------------------------------------------------------------------------
+
+let pass_count = 0
+let current_analysis = {}
+
+
+# ----------------------------------------------------------------------------
+# MAIN RESEARCH LOOP
+# ----------------------------------------------------------------------------
+
+# The loop condition ensures:
+# 1. User has confirmed direction (cannot be true on first pass)
+# 2. Critique has no major blocking issues
+#
+# This forces a pause after first pass for user validation.
+
+loop until **user has confirmed direction AND critique has no blocking issues** (max: 5):
+  
+  if pass_count == 0:
+    # ========================================================================
+    # FIRST PASS: Initial research + meta-review for user validation
+    # ========================================================================
+    
+    # Deep dive on the task
+    let initial_research = session: researcher
+      prompt: """
+      Perform initial research on this task:
+      
+      TASK:
+      {task}
+      
+      CONTEXT (if paths provided):
+      {context_paths}
+      
+      Your goals:
+      1. Understand the problem space thoroughly
+      2. Gather relevant information from any provided paths
+      3. Identify key findings, patterns, or insights
+      4. Surface any DECISION POINTS where user preference matters
+      5. Flag any ASSUMPTIONS you're making
+      
+      If context paths are provided, explore them using available tools
+      (Read, Glob, Grep, etc.) to gather concrete evidence.
+      
+      Be thorough but focused. Don't go too deep on any one area until
+      we've validated the overall direction with the user.
+      """
+    
+    # Critic challenges the research
+    let critique = session: critic
+      prompt: """
+      Review this initial research. Challenge both DETAILS and DIRECTION.
+      
+      THE TASK:
+      {task}
+      
+      THE RESEARCH:
+      (provided in context)
+      
+      Your review should:
+      1. Identify gaps in the research
+      2. Challenge assumptions (stated and unstated)
+      3. Question whether we're investigating the right things
+      4. Suggest alternative framings if appropriate
+      5. Categorize each issue as BLOCKING, IMPORTANT, or MINOR
+      
+      Remember: This is the first pass. The goal is to validate direction
+      before going deeper. Focus on strategic issues, not minor details.
+      """
+      context: initial_research
+    
+    # Meta-review surfaces what needs user input
+    let meta_review = session: meta_reviewer
+      prompt: """
+      Review this first pass of research.
+      
+      THE TASK:
+      {task}
+      
+      Your job: Surface what the user should weigh in on before we continue.
+      
+      The user will see your output and decide how to proceed. Make sure
+      any critical assumptions or decision points are clearly called out.
+      
+      After your review, the VM will pause for user confirmation.
+      """
+      context: { initial_research, critique }
+    
+    # Store for next iteration
+    let current_analysis = { 
+      research: initial_research, 
+      critique: critique, 
+      meta_review: meta_review 
+    }
+  
+  else:
+    # ========================================================================
+    # SUBSEQUENT PASSES: Iterate based on user feedback and critique
+    # ========================================================================
+    
+    # Researcher addresses feedback
+    let revision = session: researcher
+      prompt: """
+      Address the critique and incorporate user feedback.
+      
+      THE TASK:
+      {task}
+      
+      PREVIOUS ANALYSIS:
+      (provided in context)
+      
+      For each issue raised:
+      1. If BLOCKING: Must resolve with concrete solution or evidence
+      2. If IMPORTANT: Address or explain why it's not critical
+      3. If MINOR: Note it, fix if easy, otherwise defer
+      
+      For decision points where user provided direction, follow their guidance.
+      For unresolved decision points, make a reasoned choice and document why.
+      
+      Focus on producing actionable, concrete output now that direction
+      is confirmed.
+      """
+      context: current_analysis
+    
+    # Critic reviews the revision
+    let critique = session: critic
+      prompt: """
+      Review this revision.
+      
+      For each previous issue:
+      - RESOLVED: Issue adequately addressed
+      - STILL OPEN: Not adequately addressed (explain why)
+      - NEW ISSUE: Revision introduced new problems
+      
+      Focus on BLOCKING issues. If no blocking issues remain,
+      indicate the research is ready for final synthesis.
+      
+      End your review with one of:
+      - "BLOCKING ISSUES REMAIN: [list them]"
+      - "READY FOR SYNTHESIS: All blocking issues resolved"
+      """
+      context: { revision, current_analysis }
+    
+    # Update state
+    let current_analysis = { 
+      research: revision, 
+      critique: critique,
+      previous: current_analysis
+    }
+  
+  # Increment pass counter
+  let pass_count = pass_count + 1
+
+
+# ----------------------------------------------------------------------------
+# FINAL SYNTHESIS
+# ----------------------------------------------------------------------------
+
+let final_output = session: synthesizer
+  prompt: """
+  Create the final deliverable for this research task.
+  
+  THE TASK:
+  {task}
+  
+  RESEARCH FINDINGS:
+  (provided in context)
+  
+  Create a well-structured document that:
+  1. Summarizes key findings
+  2. Provides actionable recommendations or next steps
+  3. Includes concrete examples where helpful
+  4. Acknowledges limitations and open questions
+  5. Is formatted appropriately for the type of task
+  
+  The output should be immediately useful to the user.
+  """
+  context: current_analysis
+
+
+# Write the final output
+session "Write the final output to the specified file"
+  prompt: """
+  Write the following content to: {output_file}
+  
+  CONTENT:
+  {final_output}
+  
+  Use appropriate file writing tools (Bash or Write tool).
+  """
+  context: final_output
+
+
+# ============================================================================
+# USAGE EXAMPLES
+# ============================================================================
+#
+# 1. CODEBASE ANALYSIS
+#    ----------------
+#    prose-run research-loop.prose \
+#      --task="Analyze the authentication system in this codebase. 
+#              Identify security issues, architectural patterns, and 
+#              suggest improvements." \
+#      --context_paths="./src/auth/,./src/middleware/" \
+#      --output_file="./auth-analysis.md"
+#
+#
+# 2. TECHNOLOGY COMPARISON
+#    ---------------------
+#    prose-run research-loop.prose \
+#      --task="Compare React Server Components vs traditional SSR. 
+#              Evaluate for our use case: e-commerce with high SEO needs
+#              and moderate interactivity." \
+#      --output_file="./rsc-vs-ssr.md"
+#
+#
+# 3. IMPLEMENTATION FEASIBILITY
+#    --------------------------
+#    prose-run research-loop.prose \
+#      --task="Determine if we can implement feature X using library Y.
+#              Analyze library Y's capabilities and map to our requirements.
+#              Identify gaps and workarounds." \
+#      --context_paths="./requirements/feature-x.md,./node_modules/library-y/" \
+#      --output_file="./feature-x-feasibility.md"
+#
+#
+# 4. BUG INVESTIGATION
+#    -----------------
+#    prose-run research-loop.prose \
+#      --task="Investigate the memory leak reported in issue #123.
+#              Find the root cause, understand the impact, and propose fixes." \
+#      --context_paths="./src/,./logs/memory-dump.txt" \
+#      --output_file="./memory-leak-investigation.md"
+#
+#
+# 5. ARCHITECTURE DESIGN
+#    -------------------
+#    prose-run research-loop.prose \
+#      --task="Design the architecture for a real-time collaboration feature.
+#              Consider WebSockets vs SSE, state management, and conflict resolution.
+#              Produce a design doc with tradeoffs and recommendation." \
+#      --output_file="./collab-architecture.md"
+#
+#
+# ============================================================================
+# CUSTOMIZATION
+# ============================================================================
+#
+# To customize for specific domains, you can:
+#
+# 1. OVERRIDE AGENT PROMPTS
+#    Pass domain-specific context that agents should consider:
+#    
+#    --researcher_context="Focus on HIPAA compliance implications"
+#    --critic_context="Evaluate against our security checklist at ./docs/security.md"
+#
+#
+# 2. ADJUST LOOP PARAMETERS
+#    --max_passes=10  # More iterations for complex tasks
+#    --max_passes=2   # Quick analysis, less iteration
+#
+#
+# 3. CHANGE OUTPUT FORMAT
+#    The synthesizer adapts to task type, but you can be explicit:
+#    
+#    --task="... Output as: Executive summary (1 page), Technical details (appendix)"
+#
+#
+# 4. ADD PARALLEL RESEARCH
+#    For tasks with independent sub-areas, modify the first pass:
+#    
+#    parallel:
+#      security = session: researcher prompt: "Analyze security aspects of {task}"
+#      performance = session: researcher prompt: "Analyze performance aspects of {task}"
+#      maintainability = session: researcher prompt: "Analyze maintainability of {task}"
+#    
+#    let initial_research = session: researcher
+#      prompt: "Synthesize these parallel analyses"
+#      context: { security, performance, maintainability }
+#
+#
+# ============================================================================
