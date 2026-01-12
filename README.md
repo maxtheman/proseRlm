@@ -158,6 +158,10 @@ See [docs/LIMITATIONS.md](docs/LIMITATIONS.md) for detailed analysis.
 - [OOLONG Benchmark](https://github.com/abertsch72/oolong)
 - [OpenProse Language](./reference/openprose/)
 
+## Notes on Methodology
+
+This project is an exploratory proof-of-concept, not a rigorous benchmark. I made best efforts to ensure the winning agent traces did not have data leakage, but it's worth noting that context engineering and data leakage are almost two sides of the same coin. Reasonable people could view aspects of the prompt design as a form of data leakage. The goal here was simply to get the RLM pattern working with Claude, not to produce a publication-ready evaluation.
+
 ## License
 
 MIT
