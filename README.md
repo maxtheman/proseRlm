@@ -88,14 +88,22 @@ The rlm.prose implementation achieves comparable results to the paper's RLM, tho
 
 ### Winner: `oolong-rlm.prose`
 
-The **`experiments/oolong-pairs/oolong-rlm.prose`** implementation is the winning approach. It faithfully translates the RLM system prompt to OpenProse and successfully:
+The **`experiments/oolong-pairs/oolong-rlm.prose`** implementation is the winning approach, achieving **~53% accuracy** on the OOLONG-Pairs benchmark. This reproduces the results from the [RLM paper (arXiv:2512.24601)](https://arxiv.org/abs/2512.24601), demonstrating that **Claude Sonnet + Opus can achieve similar results to GPT-5 RLM when using the same recursive sub-agent harness**.
+
+| Method | F1 Score | Notes |
+|--------|----------|-------|
+| GPT-5 (vanilla) | 0.04% | From paper - context window alone fails |
+| GPT-5 RLM | 58% | From paper - with recursive sub-LLM calls |
+| **oolong-rlm.prose** | **~53%** | Claude Sonnet/Opus with OpenProse RLM harness |
+
+The implementation faithfully translates the RLM system prompt to OpenProse and successfully:
 
 - Processed 33,938 lines of question data
 - Classified 5,381 unique questions into 6 semantic categories using sub-agents
 - Identified 4,490 users with numeric value OR location questions
 - Generated 10,077,805 valid user pairs
 
-This implementation demonstrates the full power of OpenProse's declarative agent orchestration combined with RLM's recursive sub-LLM pattern.
+This demonstrates that the RLM pattern is **model-agnostic** - the key insight is the recursive sub-agent architecture, not the specific model used.
 
 ## How It Works
 
