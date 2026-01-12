@@ -45,14 +45,11 @@ agent worker:
   """
 
 
-# Initialize state with input file info
+# Initialize state - minimal, let worker decide strategy
 let rlm_state = {
   "phase": "init",
   "input_file": "./experiments/oolong-pairs/input_task1_32k.txt",
-  "chunk_size": 200,
-  "chunks_processed": 0,
-  "user_labels": {},
-  "qualifying_pairs": [],
+  "workspace": {},
   "done": false,
   "answer": null
 }
@@ -65,28 +62,16 @@ loop until **rlm_state.done is true** (max: 30):
     prompt: """
     OOLONG-Pairs Iteration
     
-    State:
+    Current state:
     {rlm_state}
     
-    If phase is "init":
-    - Read the input file to get total lines
-    - Set up chunk boundaries
-    - Set phase = "classify"
+    You decide how to approach this. Examine the input file, determine the
+    best strategy, and make progress. Update state.workspace with whatever
+    intermediate data you need.
     
-    If phase is "classify":
-    - Read next chunk from input file
-    - Use Task tool to classify the questions in that chunk
-    - Update user_labels mapping
-    - Increment chunks_processed
-    - If all chunks done, set phase = "compute_pairs"
+    When finished, set done=true and answer=<path to pairs file or pair count>.
     
-    If phase is "compute_pairs":
-    - Find all users with NUM or LOC labels
-    - Generate all qualifying pairs (uid1 < uid2)
-    - Set qualifying_pairs and answer
-    - Set done = true
-    
-    Return the updated state.
+    Return the updated state as JSON.
     """
     context: rlm_state
 
