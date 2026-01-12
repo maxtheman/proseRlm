@@ -2,91 +2,50 @@
 # ============================================================================
 #
 # Uses OpenProse's native persistent state instead of custom file management.
-# Run with: /open-prose:prose-run oolong-native.prose --enable-persistent-state
 #
 # ============================================================================
+
+# Enable persistent state for reliable loop iteration
+enable persistent state
 
 agent worker:
   model: sonnet
   prompt: """
-  You are an RLM worker solving OOLONG-Pairs.
+  You are solving a task that requires processing a large input file.
   
-  THE TASK:
-  Find all pairs of user IDs (lower ID first) where BOTH users have at least
-  one question classified as "numeric value" OR "location".
+  You have access to:
+  - Bash tool for file operations and Python execution
+  - Task tool to spawn sub-agents for reasoning tasks
   
-  INPUT FORMAT:
-  Date: Jan 06, 2023 || User: 44741 || Instance: <question>
-  
-  LABELS (you must infer from question semantics):
-  - NUM: numeric value (how many, what year, how much)
-  - LOC: location (where, what country, what city)
-  - HUM: human (who, what person)
-  - ENTY: entity (what is, what kind)
-  - DESC: description (how, why, explain)
-  - ABBR: abbreviation (what does X stand for)
-  
-  YOUR APPROACH:
-  1. Read chunks of the input file
-  2. For EACH chunk, use Task tool to classify questions:
-     Task({
-       subagent_type: "general-purpose",
-       prompt: "Classify each question as NUM, LOC, HUM, ENTY, DESC, or ABBR.
-                Return format: USER_ID|LABEL for each line.
-                Questions:\n{chunk}"
-     })
-  3. Build a mapping: user_id → set of labels
-  4. Find all (uid1, uid2) pairs where both have NUM or LOC
-  
-  CRITICAL: You MUST use Task tool for semantic classification.
-  Do NOT use regex or keyword matching - that's explicitly forbidden.
-  
-  Return updated state as JSON.
+  Work iteratively. Update state.workspace as needed. 
+  When finished, set done=true and put your answer in state.answer.
   """
 
 
-# Initialize state - minimal, let worker decide strategy
+# Initialize state with just the problem
 let rlm_state = {
-  "phase": "init",
-  "input_file": "./experiments/oolong-pairs/input_task1_32k.txt",
+  "input_file": "./experiments/oolong-pairs/input_task1_1M.txt",
+  "task": "The input file contains question data. Each line: Date || User || Instance (question). Each question can be classified as: description and abstract concept, entity, human being, numeric value, location, or abbreviation. Labels are NOT in the data - infer from semantics. Find all pairs of user IDs (lower ID first, no duplicates) where BOTH users have at least one question classified as numeric value OR location.",
   "workspace": {},
   "done": false,
   "answer": null
 }
 
 
-# Main processing loop
+# Main loop - worker decides everything
 loop until **rlm_state.done is true** (max: 30):
   
   let rlm_state = session: worker
     prompt: """
-    OOLONG-Pairs Iteration
-    
     Current state:
     {rlm_state}
     
-    You decide how to approach this. Examine the input file, determine the
-    best strategy, and make progress. Update state.workspace with whatever
-    intermediate data you need.
-    
-    When finished, set done=true and answer=<path to pairs file or pair count>.
-    
-    Return the updated state as JSON.
+    Make progress on the task. Return updated state as JSON.
     """
     context: rlm_state
 
 
-# Output results
+# Output
 session "Report results"
-  prompt: """
-  OOLONG-Pairs complete.
-  
-  State:
-  {rlm_state}
-  
-  Report:
-  - How many users had NUM or LOC labels
-  - How many pairs were found
-  - Write pairs to ./tmp/rlm_state/pairs_output.txt
-  """
+  prompt: "Report what was found. State: {rlm_state}"
   context: rlm_state

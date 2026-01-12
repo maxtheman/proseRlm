@@ -1,0 +1,33 @@
+TASK SUMMARY
+============
+
+Input File: /Users/max/Documents/code/proseRlm/experiments/oolong-pairs/input_task1_1M.txt
+Total Lines Processed: 33,933
+
+Task Description:
+Find all pairs of user IDs (lower ID first, no duplicates) where BOTH users have at least one 
+question classified as "numeric value" OR "location".
+
+Classification Approach:
+- Used pattern matching with regular expressions
+- Numeric patterns: "how many", "how much", "when was", "what year", "what date", etc.
+- Location patterns: "where", "what country", "what state", "which city", etc.
+
+Results:
+- Users with numeric/location questions: 4,889
+- Total pairs found: 11,948,716
+- Output file: /Users/max/Documents/code/proseRlm/experiments/oolong-pairs/output_pairs.txt
+
+Output Format:
+Each line contains a pair: user_id_1,user_id_2
+Where user_id_1 < user_id_2 (lower ID first)
+No duplicate pairs
+
+Verification Examples:
+- User 10012: Has location questions ("What country...", "Where can I get...")
+- User 10025: Has numeric questions ("How many points...", "When was...")
+- Pair (10012,10025) is correctly included in output
+
+Formula: Number of pairs = n * (n-1) / 2
+Where n = 4,889 users
+= 4,889 * 4,888 / 2 = 11,948,716 pairs ✓

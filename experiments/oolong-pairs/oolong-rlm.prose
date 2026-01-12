@@ -1,0 +1,96 @@
+# oolong-rlm.prose - Faithful OpenProse translation of RLM system prompt
+# ============================================================================
+#
+# This encodes the exact logic from the RLM paper's M_SYSTEM_PROMPT,
+# translated to OpenProse abstractions:
+#
+#   Python RLM          →  OpenProse
+#   ──────────────────────────────────────────
+#   context variable    →  state.context (file path)
+#   llm_query()         →  Task tool (spawn sub-agent)
+#   llm_query_batched() →  parallel block
+#   print()             →  state.workspace updates
+#   REPL iteration      →  loop with state
+#   FINAL()/FINAL_VAR() →  state.done + state.answer
+#
+# ============================================================================
+
+enable persistent state
+
+agent worker:
+  model: sonnet
+  prompt: """
+  You are tasked with answering a query with associated context. You can access, 
+  transform, and analyze this context interactively using tools that can recursively 
+  query sub-LLMs, which you are strongly encouraged to use as much as possible. 
+  You will be queried iteratively until you provide a final answer.
+
+  Your environment provides:
+  1. A `state.context` path pointing to a file with extremely important information 
+     about your query. You should read and examine this file to understand what you 
+     are working with. Make sure you look through it sufficiently as you answer your query.
+  2. A Task tool that allows you to spawn sub-agents (that can handle ~500K chars each) 
+     for reasoning tasks. Use subagent_type="general-purpose".
+  3. The ability to spawn multiple Task calls in parallel when you have independent queries.
+     This is much faster than sequential calls.
+  4. Bash tool for file operations and Python execution.
+  5. state.workspace - a scratch space to track intermediate results and buffers.
+
+  You will only be able to see truncated outputs, so you should use sub-agents (Task tool)
+  on content you want to analyze. You will find sub-agents especially useful when you have 
+  to analyze the semantics of the context. Use state.workspace as buffers to build up 
+  your final answer.
+
+  Make sure to explicitly look through the entire context before answering your query. 
+  An example strategy is to first look at the context and figure out a chunking strategy, 
+  then break up the context into smart chunks, and query a sub-agent per chunk with a 
+  particular question and save the answers to a buffer, then query a sub-agent with all 
+  the buffers to produce your final answer.
+
+  Remember that your sub-agents are powerful -- they can fit around 500K characters in 
+  their context window, so don't be afraid to put a lot of context into them. For example, 
+  a viable strategy is to feed many items per sub-agent query. Analyze your input data 
+  and see if it is sufficient to just fit it in a few sub-agent calls!
+
+  IMPORTANT: When classifying questions semantically (e.g., is this about a number, 
+  location, person, etc.), you MUST use sub-agents. Pattern matching with regex will 
+  NOT work reliably for semantic classification.
+
+  Think step by step carefully, plan, and execute this plan immediately -- do not just 
+  say "I will do this". Use sub-agents and parallel execution as much as possible.
+
+  When you are done, set state.done = true and state.answer = your final answer.
+  """
+
+
+# Initialize state - mirrors RLM's context variable
+let state = {
+  "context": "./experiments/oolong-pairs/input_task1_1M.txt",
+  "query": "The context file contains question data. Each line: Date || User || Instance (question). Each question can be classified into one of these semantic categories: description/abstract concept, entity, human being, numeric value, location, or abbreviation. Labels are NOT in the data - you must infer category from the question's meaning. Find all pairs of user IDs (lower ID first, no duplicates) where BOTH users have at least one question classified as 'numeric value' OR 'location'.",
+  "workspace": {},
+  "done": false,
+  "answer": null
+}
+
+
+# Main loop - worker iterates until FINAL (done=true)
+loop until **state.done is true** (max: 50):
+  
+  let state = session: worker
+    prompt: """
+    Current state:
+    {state}
+    
+    Continue working on the query. Use sub-agents (Task tool) for semantic analysis.
+    Update state.workspace with intermediate results.
+    When finished, set done=true and answer=your final result.
+    
+    Return the updated state as JSON.
+    """
+    context: state
+
+
+# Output
+session "Report final answer"
+  prompt: "Report the final answer. State: {state}"
+  context: state

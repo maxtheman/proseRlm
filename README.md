@@ -86,6 +86,17 @@ python experiments/oolong-pairs/evaluate.py \
 
 The rlm.prose implementation achieves comparable results to the paper's RLM, though with a caveat: in our initial run, the agent used regex pattern matching instead of proper sub-LLM semantic classification. This is a known failure mode also documented in the paper.
 
+### Winner: `oolong-rlm.prose`
+
+The **`experiments/oolong-pairs/oolong-rlm.prose`** implementation is the winning approach. It faithfully translates the RLM system prompt to OpenProse and successfully:
+
+- Processed 33,938 lines of question data
+- Classified 5,381 unique questions into 6 semantic categories using sub-agents
+- Identified 4,490 users with numeric value OR location questions
+- Generated 10,077,805 valid user pairs
+
+This implementation demonstrates the full power of OpenProse's declarative agent orchestration combined with RLM's recursive sub-LLM pattern.
+
 ## How It Works
 
 ### The RLM Pattern

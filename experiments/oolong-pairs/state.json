@@ -1,0 +1,24 @@
+{
+  "context": "./experiments/oolong-pairs/input_task1_1M.txt",
+  "query": "The context file contains question data. Each line: Date || User || Instance (question). Each question can be classified into one of these semantic categories: description/abstract concept, entity, human being, numeric value, location, or abbreviation. Labels are NOT in the data - you must infer category from the question's meaning. Find all pairs of user IDs (lower ID first, no duplicates) where BOTH users have at least one question classified as 'numeric value' OR 'location'.",
+  "workspace": {
+    "total_lines": 33938,
+    "unique_users": 7535,
+    "unique_questions": 5381,
+    "classification": {
+      "abbreviation": 64,
+      "description/abstract concept": 2037,
+      "entity": 1624,
+      "human being": 561,
+      "location": 431,
+      "numeric value": 664
+    },
+    "users_with_numeric_value": 3168,
+    "users_with_location": 2274,
+    "users_with_numeric_or_location": 4490,
+    "total_pairs": 10077805,
+    "pairs_file": "/Users/max/Documents/code/proseRlm/experiments/oolong-pairs/user_pairs.txt"
+  },
+  "done": true,
+  "answer": "Found 10,077,805 unique user pairs where both users have at least one question classified as 'numeric value' OR 'location'. Out of 7,535 total users and 5,381 unique questions, 4,490 users asked at least one question in these categories (3,168 asked numeric value questions, 2,274 asked location questions). All pairs are formatted as (lower_id, higher_id) with no duplicates. Results saved to /Users/max/Documents/code/proseRlm/experiments/oolong-pairs/user_pairs.txt"
+}
