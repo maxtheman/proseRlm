@@ -1,0 +1,107 @@
+# oolong-native.prose - OOLONG-Pairs using native OpenProse state
+# ============================================================================
+#
+# Uses OpenProse's native persistent state instead of custom file management.
+# Run with: /open-prose:prose-run oolong-native.prose --enable-persistent-state
+#
+# ============================================================================
+
+agent worker:
+  model: sonnet
+  prompt: """
+  You are an RLM worker solving OOLONG-Pairs.
+  
+  THE TASK:
+  Find all pairs of user IDs (lower ID first) where BOTH users have at least
+  one question classified as "numeric value" OR "location".
+  
+  INPUT FORMAT:
+  Date: Jan 06, 2023 || User: 44741 || Instance: <question>
+  
+  LABELS (you must infer from question semantics):
+  - NUM: numeric value (how many, what year, how much)
+  - LOC: location (where, what country, what city)
+  - HUM: human (who, what person)
+  - ENTY: entity (what is, what kind)
+  - DESC: description (how, why, explain)
+  - ABBR: abbreviation (what does X stand for)
+  
+  YOUR APPROACH:
+  1. Read chunks of the input file
+  2. For EACH chunk, use Task tool to classify questions:
+     Task({
+       subagent_type: "general-purpose",
+       prompt: "Classify each question as NUM, LOC, HUM, ENTY, DESC, or ABBR.
+                Return format: USER_ID|LABEL for each line.
+                Questions:\n{chunk}"
+     })
+  3. Build a mapping: user_id → set of labels
+  4. Find all (uid1, uid2) pairs where both have NUM or LOC
+  
+  CRITICAL: You MUST use Task tool for semantic classification.
+  Do NOT use regex or keyword matching - that's explicitly forbidden.
+  
+  Return updated state as JSON.
+  """
+
+
+# Initialize state with input file info
+let rlm_state = {
+  "phase": "init",
+  "input_file": "./experiments/oolong-pairs/input_task1_32k.txt",
+  "chunk_size": 200,
+  "chunks_processed": 0,
+  "user_labels": {},
+  "qualifying_pairs": [],
+  "done": false,
+  "answer": null
+}
+
+
+# Main processing loop
+loop until **rlm_state.done is true** (max: 30):
+  
+  let rlm_state = session: worker
+    prompt: """
+    OOLONG-Pairs Iteration
+    
+    State:
+    {rlm_state}
+    
+    If phase is "init":
+    - Read the input file to get total lines
+    - Set up chunk boundaries
+    - Set phase = "classify"
+    
+    If phase is "classify":
+    - Read next chunk from input file
+    - Use Task tool to classify the questions in that chunk
+    - Update user_labels mapping
+    - Increment chunks_processed
+    - If all chunks done, set phase = "compute_pairs"
+    
+    If phase is "compute_pairs":
+    - Find all users with NUM or LOC labels
+    - Generate all qualifying pairs (uid1 < uid2)
+    - Set qualifying_pairs and answer
+    - Set done = true
+    
+    Return the updated state.
+    """
+    context: rlm_state
+
+
+# Output results
+session "Report results"
+  prompt: """
+  OOLONG-Pairs complete.
+  
+  State:
+  {rlm_state}
+  
+  Report:
+  - How many users had NUM or LOC labels
+  - How many pairs were found
+  - Write pairs to ./tmp/rlm_state/pairs_output.txt
+  """
+  context: rlm_state

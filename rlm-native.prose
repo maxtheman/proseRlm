@@ -1,0 +1,165 @@
+# rlm-native.prose - RLM using native OpenProse state management
+# ============================================================================
+#
+# This is a simplified RLM implementation that leverages OpenProse's native
+# persistent state feature instead of custom file-based state management.
+#
+# KEY INSIGHT (from OpenProse creator):
+# "Use a single variable as 'the main RLM state' and write a .prose call flow
+# that loops and takes that variable as input and writes its output back to it."
+#
+# USAGE:
+#   Run with persistent state enabled:
+#   /open-prose:prose-run rlm-native.prose --enable-persistent-state
+#
+# HOW IT WORKS:
+# 1. Initialize `rlm_state` variable with problem and empty workspace
+# 2. Loop: pass state to worker, worker returns updated state
+# 3. OpenProse VM persists state to .prose/execution/... automatically
+# 4. Exit when worker sets state.done = true
+#
+# This maps directly to Python RLM:
+#   - rlm_state ≈ REPL environment variables
+#   - worker session ≈ one iteration of the REPL loop
+#   - Task tool ≈ llm_query() for sub-LLM calls
+#   - state.done ≈ FINAL() termination
+#
+# ============================================================================
+
+
+# ----------------------------------------------------------------------------
+# AGENT DEFINITIONS
+# ----------------------------------------------------------------------------
+
+agent worker:
+  model: sonnet
+  prompt: """
+  You are an RLM worker - one iteration of a recursive problem-solving loop.
+  
+  You receive the current state as context. Your job:
+  1. Examine state.phase to understand where we are
+  2. Do ONE unit of meaningful work
+  3. Return the UPDATED state as your response
+  
+  PHASES:
+  
+  "init" - First iteration, analyze the problem
+    → Examine the problem, decide on approach
+    → Break into chunks if needed (add to state.items)
+    → Set state.phase = "process"
+  
+  "process" - Work through items
+    → Process state.items[state.current_index]
+    → For semantic tasks, use Task tool for sub-LLM calls:
+        Task({ subagent_type: "general-purpose", prompt: "Classify: ..." })
+    → Add result to state.results
+    → Increment state.current_index
+    → If all items done, set state.phase = "synthesize"
+  
+  "synthesize" - Combine results into answer
+    → Aggregate state.results
+    → Set state.answer = <final answer>
+    → Set state.done = true
+  
+  YOUR CAPABILITIES:
+  - Execute Python via Bash tool for data processing
+  - Spawn sub-LLM calls via Task tool for semantic reasoning
+  - Store large data in state.workspace (OpenProse persists it)
+  
+  IMPORTANT: Return your response as a JSON state object:
+  {
+    "phase": "...",
+    "items": [...],
+    "current_index": N,
+    "results": [...],
+    "workspace": {...},
+    "done": false,
+    "answer": null
+  }
+  """
+
+
+# ----------------------------------------------------------------------------
+# MAIN PROGRAM
+# ----------------------------------------------------------------------------
+
+# Initialize RLM state
+# The problem comes from {problem} variable passed at runtime
+let rlm_state = {
+  "problem": "{problem}",
+  "phase": "init",
+  "items": [],
+  "current_index": 0,
+  "results": [],
+  "workspace": {},
+  "iteration": 0,
+  "done": false,
+  "answer": null
+}
+
+
+# Main RLM loop
+# Each iteration: pass state in, get updated state out
+# OpenProse persists rlm_state automatically with --enable-persistent-state
+
+loop until **rlm_state.done is true** (max: 50):
+  
+  # Worker receives current state, returns updated state
+  let rlm_state = session: worker
+    prompt: """
+    RLM Iteration {rlm_state.iteration}
+    
+    Current state:
+    {rlm_state}
+    
+    Do one unit of work and return the updated state.
+    Remember: Use Task tool for any semantic reasoning (classification, analysis).
+    """
+    context: rlm_state
+  
+  # Increment iteration counter
+  # (The worker should also update this, but we ensure it here)
+
+
+# Extract and return the final answer
+session "Format the final answer"
+  prompt: """
+  The RLM loop has completed.
+  
+  Final state:
+  {rlm_state}
+  
+  Present the answer clearly and concisely.
+  """
+  context: rlm_state
+
+
+# ============================================================================
+# COMPARISON TO PYTHON RLM
+# ============================================================================
+#
+# Python RLM:
+#   state = {}
+#   while not done:
+#     action = llm(prompt, state)
+#     if action.type == "FINAL":
+#       return action.answer
+#     result = exec(action.code)
+#     state.update(result)
+#
+# rlm-native.prose:
+#   let rlm_state = { problem, phase: "init", ... }
+#   loop until **rlm_state.done**:
+#     let rlm_state = session: worker
+#       context: rlm_state
+#   # rlm_state.answer contains result
+#
+# The mapping is direct:
+#   - Python loop → OpenProse loop
+#   - Python state dict → rlm_state variable
+#   - Python llm() → worker session
+#   - Python exec() → Bash tool in worker
+#   - Python llm_query() → Task tool in worker
+#   - FINAL → state.done = true
+#
+# ============================================================================
